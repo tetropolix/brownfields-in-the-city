@@ -1,0 +1,191 @@
+from re import A
+from sqlalchemy import ForeignKey,Integer,Column,String,Float,Numeric
+from sqlalchemy.orm import relationship
+from .database import Base
+
+class Brownfield(Base):
+    __tablename__ = "brownfields"
+    id = Column(Integer,primary_key=True,index=True)
+    street = Column(String(256),nullable=False)
+    area_ha = Column(Numeric(12,4),nullable=False)
+    mapping_year = Column(Integer,nullable=False)
+    altitude = Column(Float(precision=4),nullable=False)
+
+    ownership_type_id = Column(Integer,ForeignKey("ownership_types.id"))
+    original_functional_utilization_id = Column(Integer,ForeignKey("original_functional_utilizations.id"))
+    utilization_id = Column(Integer,ForeignKey("utilizations.id"))
+    area_size_id = Column(Integer,ForeignKey("area_sizes.id"))
+    location_id = Column(Integer,ForeignKey("locations.id"))
+    degradation_level_id = Column(Integer,ForeignKey("degradation_levels.id"))
+    residentional_area_category_id = Column(Integer,ForeignKey("residentional_area_categories.id"))
+    settlement_id = Column(Integer,ForeignKey("settlements.id"))
+    infrastructure_availability_id = Column(Integer,ForeignKey("infrastructure_availabilities.id"))
+    natural_and_architectural_value_id = Column(Integer,ForeignKey("natural_and_architectural_values.id"))
+    revitalization_id = Column(Integer,ForeignKey("revitalizations.id"))
+    economic_potential_id = Column(Integer,ForeignKey("economic_potentials.id"))
+    environmental_burden_inclusion_id = Column(Integer,ForeignKey("environmental_burden_inclusions.id"))
+
+    ownership_type = relationship("OwnershipType",back_populates = "brownfields")
+    original_functional_utilization = relationship("OriginalFunctionalUtilization",back_populates = "brownfields")
+    utilization = relationship("Utilization",back_populates = "brownfields")
+    area_size = relationship("AreaSize",back_populates = "brownfields")
+    location = relationship("Location",back_populates = "brownfields")
+    degradation_level = relationship("DegradationLevel",back_populates = "brownfields")
+    residentional_area_category = relationship("ResidentionalAreaCategory",back_populates = "brownfields")
+    settlement = relationship("Settlement",back_populates = "brownfields")
+    infrastructure_availability = relationship("InfrastructureAvailability",back_populates = "brownfields")
+    natural_and_architectural_value = relationship("NaturalAndArchitecturalValue",back_populates = "brownfields")
+    revitalization = relationship("Revitalization",back_populates = "brownfields")
+    economic_potential = relationship("EconomicPotential",back_populates = "brownfields")
+    environmental_burden_inclusion = relationship("EnvironmentalBurdenInclusion",back_populates = "brownfields")
+
+
+
+    def __repr__(self):
+        return f"Brownfield (id = {self.id}) street={self.street} mapping year={self.mapping_year}"
+
+### Lookup tables
+### Note: ONDELETE for child tables (child tables of lookup tables below) is not specified = default = prevent from deleting if some child references it
+### ..... -> for now, this seems to be requested feature
+
+class OwnershipType(Base):
+    __tablename__="ownership_types"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(128),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="ownership_type")
+
+    def __repr__(self):
+        return f"Ownership type (id = {self.id}) with value = {self.value}"
+
+
+class OriginalFunctionalUtilization(Base):
+    __tablename__="original_functional_utilizations"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="original_functional_utilization")
+
+    def __repr__(self):
+        return f"Original functional utilizations (id = {self.id}) with value = {self.value}"
+
+
+class Utilization(Base):
+    __tablename__="utilizations"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="utilization")
+
+    def __repr__(self):
+        return f"Utilization (id = {self.id}) with value = {self.value}"
+
+
+class AreaSize(Base):
+    __tablename__="area_sizes"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(128),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="area_size")
+
+    def __repr__(self):
+        return f"Area size (id = {self.id}) with value = {self.value}"
+
+
+class Location(Base):
+    __tablename__="locations"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="location")
+
+    def __repr__(self):
+        return f"Location (id = {self.id}) with value = {self.value}"
+
+
+class DegradationLevel(Base):
+    __tablename__="degradation_levels"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="degradation_level")
+
+    def __repr__(self):
+        return f"Level of degradation (id = {self.id}) with value = {self.value}"
+
+
+class ResidentionalAreaCategory(Base):
+    __tablename__="residentional_area_categories"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="residentional_area_category")
+
+    def __repr__(self):
+        return f"Residentional area category (id = {self.id}) with value = {self.value}"
+
+
+class Settlement(Base):
+    __tablename__="settlements"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="settlement")
+
+    def __repr__(self):
+        return f"Settlement category (id = {self.id}) with value = {self.value}"
+
+
+class InfrastructureAvailability(Base):
+    __tablename__="infrastructure_availabilities"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="infrastructure_availability")
+
+    def __repr__(self):
+        return f"Infrastructure availability category (id = {self.id}) with value = {self.value}"
+
+
+class NaturalAndArchitecturalValue(Base):
+    __tablename__="natural_and_architectural_values"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="natural_and_architectural_value")
+
+    def __repr__(self):
+        return f"Atural and architectural value category (id = {self.id}) with value = {self.value}"
+
+
+class Revitalization(Base):
+    __tablename__="revitalizations"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=False)
+
+    brownfields = relationship("Brownfield",back_populates="revitalization")
+
+    def __repr__(self):
+        return f"Revitalization category (id = {self.id}) with value = {self.value}"
+
+
+class EconomicPotential(Base):
+    __tablename__="economic_potentials"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=True) ## TO DO - value is nullable because eventual values = TBA
+
+    brownfields = relationship("Brownfield",back_populates="economic_potential")
+
+    def __repr__(self):
+        return f"Economic potential category (id = {self.id}) with value = {self.value}"
+
+
+class EnvironmentalBurdenInclusion(Base):
+    __tablename__="environmental_burden_inclusions"
+    id = Column(Integer,primary_key=True,index=True)
+    value=Column(String(256),unique=True,nullable=True) ## TO DO - value is nullable because eventual values = TBA
+
+    brownfields = relationship("Brownfield",back_populates="environmental_burden_inclusion")
+
+    def __repr__(self):
+        return f"Environmental burden inclusions category (id = {self.id}) with value = {self.value}"
