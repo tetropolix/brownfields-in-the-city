@@ -25,19 +25,19 @@ class Brownfield(Base):
     economic_potential_id = Column(Integer,ForeignKey("economic_potentials.id"))
     environmental_burden_inclusion_id = Column(Integer,ForeignKey("environmental_burden_inclusions.id"))
 
-    ownership_type = relationship("OwnershipType",back_populates = "brownfields")
-    original_functional_utilization = relationship("OriginalFunctionalUtilization",back_populates = "brownfields")
-    utilization = relationship("Utilization",back_populates = "brownfields")
-    area_size = relationship("AreaSize",back_populates = "brownfields")
-    location = relationship("Location",back_populates = "brownfields")
-    degradation_level = relationship("DegradationLevel",back_populates = "brownfields")
-    residentional_area_category = relationship("ResidentionalAreaCategory",back_populates = "brownfields")
-    settlement = relationship("Settlement",back_populates = "brownfields")
-    infrastructure_availability = relationship("InfrastructureAvailability",back_populates = "brownfields")
-    natural_and_architectural_value = relationship("NaturalAndArchitecturalValue",back_populates = "brownfields")
-    revitalization = relationship("Revitalization",back_populates = "brownfields")
-    economic_potential = relationship("EconomicPotential",back_populates = "brownfields")
-    environmental_burden_inclusion = relationship("EnvironmentalBurdenInclusion",back_populates = "brownfields")
+    ownership_type = relationship("OwnershipType",back_populates = "brownfields", lazy="joined")
+    original_functional_utilization = relationship("OriginalFunctionalUtilization",back_populates = "brownfields", lazy="joined")
+    utilization = relationship("Utilization",back_populates = "brownfields", lazy="joined")
+    area_size = relationship("AreaSize",back_populates = "brownfields", lazy="joined")
+    location = relationship("Location",back_populates = "brownfields", lazy="joined")
+    degradation_level = relationship("DegradationLevel",back_populates = "brownfields", lazy="joined")
+    residentional_area_category = relationship("ResidentionalAreaCategory",back_populates = "brownfields", lazy="joined")
+    settlement = relationship("Settlement",back_populates = "brownfields", lazy="joined")
+    infrastructure_availability = relationship("InfrastructureAvailability",back_populates = "brownfields", lazy="joined")
+    natural_and_architectural_value = relationship("NaturalAndArchitecturalValue",back_populates = "brownfields", lazy="joined")
+    revitalization = relationship("Revitalization",back_populates = "brownfields", lazy="joined")
+    economic_potential = relationship("EconomicPotential",back_populates = "brownfields", lazy="joined")
+    environmental_burden_inclusion = relationship("EnvironmentalBurdenInclusion",back_populates = "brownfields", lazy="joined")
 
 
 
@@ -45,8 +45,9 @@ class Brownfield(Base):
         return f"Brownfield (id = {self.id}) street={self.street} mapping year={self.mapping_year}"
 
 ### Lookup tables
-### Note: ONDELETE for child tables (child tables of lookup tables below) is not specified = default = prevent from deleting if some child references it
+### Note: 1.ONDELETE for child tables (child tables of lookup tables below) is not specified = default = prevent from deleting if some child references it
 ### ..... -> for now, this seems to be requested feature
+###       2. Lazy parameter for Lookup tables (relationship to brownfields) uses default "select" value which loads brownfields lazily
 
 class OwnershipType(Base):
     __tablename__="ownership_types"
