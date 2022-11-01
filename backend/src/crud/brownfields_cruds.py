@@ -6,7 +6,7 @@ def get_union_lookup_values(session: Session):
     column_alias = "table_name"
     tables = [OwnershipType,Utilization,AreaSize,Location,DegradationLevel,ResidentionalAreaCategory,Settlement,
               InfrastructureAvailability,NaturalAndArchitecturalValue,
-              Revitalization,EconomicPotential,EnvironmentalBurdenInclusion]
+              Revitalization,EconomicPotential,EnvironmentalBurdenInclusion,OriginalFunctionalUtilization]
     table_names = [table.__tablename__ for table in tables]
     stmt = ('''
             select *,:t0 AS {column_alias} from %s
@@ -21,6 +21,7 @@ def get_union_lookup_values(session: Session):
             union select *,:t9 AS {column_alias} from %s
             union select *,:t10 AS {column_alias} from %s
             union select *,:t11 AS {column_alias} from %s
+            union select *,:t12 AS {column_alias} from %s
             ''' % (tuple(["brownfields." + tbname for tbname in table_names]))).format(column_alias = column_alias)
     keys = ["t" + str(val) for val in range(0,len(tables))]
     dynamic_values = dict(zip(keys,table_names))
