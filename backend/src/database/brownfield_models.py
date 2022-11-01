@@ -5,25 +5,26 @@ from .database import Base
 
 class Brownfield(Base):
     __tablename__ = "brownfields"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     street = Column(String(256),nullable=False)
     area_ha = Column(Numeric(12,4),nullable=False)
     mapping_year = Column(Integer,nullable=False)
     altitude = Column(Float(precision=4),nullable=False)
 
-    ownership_type_id = Column(Integer,ForeignKey("ownership_types.id"))
-    original_functional_utilization_id = Column(Integer,ForeignKey("original_functional_utilizations.id"))
-    utilization_id = Column(Integer,ForeignKey("utilizations.id"))
-    area_size_id = Column(Integer,ForeignKey("area_sizes.id"))
-    location_id = Column(Integer,ForeignKey("locations.id"))
-    degradation_level_id = Column(Integer,ForeignKey("degradation_levels.id"))
-    residentional_area_category_id = Column(Integer,ForeignKey("residentional_area_categories.id"))
-    settlement_id = Column(Integer,ForeignKey("settlements.id"))
-    infrastructure_availability_id = Column(Integer,ForeignKey("infrastructure_availabilities.id"))
-    natural_and_architectural_value_id = Column(Integer,ForeignKey("natural_and_architectural_values.id"))
-    revitalization_id = Column(Integer,ForeignKey("revitalizations.id"))
-    economic_potential_id = Column(Integer,ForeignKey("economic_potentials.id"))
-    environmental_burden_inclusion_id = Column(Integer,ForeignKey("environmental_burden_inclusions.id"))
+    ownership_type_id = Column(Integer,ForeignKey("brownfields.ownership_types.id"))
+    original_functional_utilization_id = Column(Integer,ForeignKey("brownfields.original_functional_utilizations.id"))
+    utilization_id = Column(Integer,ForeignKey("brownfields.utilizations.id"))
+    area_size_id = Column(Integer,ForeignKey("brownfields.area_sizes.id"))
+    location_id = Column(Integer,ForeignKey("brownfields.locations.id"))
+    degradation_level_id = Column(Integer,ForeignKey("brownfields.degradation_levels.id"))
+    residentional_area_category_id = Column(Integer,ForeignKey("brownfields.residentional_area_categories.id"))
+    settlement_id = Column(Integer,ForeignKey("brownfields.settlements.id"))
+    infrastructure_availability_id = Column(Integer,ForeignKey("brownfields.infrastructure_availabilities.id"))
+    natural_and_architectural_value_id = Column(Integer,ForeignKey("brownfields.natural_and_architectural_values.id"))
+    revitalization_id = Column(Integer,ForeignKey("brownfields.revitalizations.id"))
+    economic_potential_id = Column(Integer,ForeignKey("brownfields.economic_potentials.id"))
+    environmental_burden_inclusion_id = Column(Integer,ForeignKey("brownfields.environmental_burden_inclusions.id"))
 
     ownership_type = relationship("OwnershipType",back_populates = "brownfields", lazy="joined")
     original_functional_utilization = relationship("OriginalFunctionalUtilization",back_populates = "brownfields", lazy="joined")
@@ -51,6 +52,7 @@ class Brownfield(Base):
 
 class OwnershipType(Base):
     __tablename__="ownership_types"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(128),unique=True,nullable=False)
 
@@ -62,6 +64,7 @@ class OwnershipType(Base):
 
 class OriginalFunctionalUtilization(Base):
     __tablename__="original_functional_utilizations"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -73,6 +76,7 @@ class OriginalFunctionalUtilization(Base):
 
 class Utilization(Base):
     __tablename__="utilizations"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -84,6 +88,7 @@ class Utilization(Base):
 
 class AreaSize(Base):
     __tablename__="area_sizes"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(128),unique=True,nullable=False)
 
@@ -95,6 +100,7 @@ class AreaSize(Base):
 
 class Location(Base):
     __tablename__="locations"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -106,6 +112,7 @@ class Location(Base):
 
 class DegradationLevel(Base):
     __tablename__="degradation_levels"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -117,6 +124,7 @@ class DegradationLevel(Base):
 
 class ResidentionalAreaCategory(Base):
     __tablename__="residentional_area_categories"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -128,6 +136,7 @@ class ResidentionalAreaCategory(Base):
 
 class Settlement(Base):
     __tablename__="settlements"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -139,6 +148,7 @@ class Settlement(Base):
 
 class InfrastructureAvailability(Base):
     __tablename__="infrastructure_availabilities"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -150,6 +160,7 @@ class InfrastructureAvailability(Base):
 
 class NaturalAndArchitecturalValue(Base):
     __tablename__="natural_and_architectural_values"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -161,6 +172,7 @@ class NaturalAndArchitecturalValue(Base):
 
 class Revitalization(Base):
     __tablename__="revitalizations"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=False)
 
@@ -172,6 +184,7 @@ class Revitalization(Base):
 
 class EconomicPotential(Base):
     __tablename__="economic_potentials"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=True) ## TO DO - value is nullable because eventual values = TBA
 
@@ -183,6 +196,7 @@ class EconomicPotential(Base):
 
 class EnvironmentalBurdenInclusion(Base):
     __tablename__="environmental_burden_inclusions"
+    __table_args__ = {"schema":"brownfields"}
     id = Column(Integer,primary_key=True,index=True)
     value=Column(String(256),unique=True,nullable=True) ## TO DO - value is nullable because eventual values = TBA
 
