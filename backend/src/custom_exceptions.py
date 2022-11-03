@@ -1,0 +1,2 @@
+class EntityWasNotStored(Exception):
+    pass

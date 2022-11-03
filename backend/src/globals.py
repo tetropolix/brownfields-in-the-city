@@ -1,0 +1,18 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+BROWNFIELD_IMAGES_DIR = os.getenv("BROWNFIELD_IMAGES_DIR")
+MAX_IMAGE_UPLOAD_SIZE = 2097152 # in bytes = 2MB
+
+env_vars = [SQLALCHEMY_DATABASE_URL,BROWNFIELD_IMAGES_DIR]
+
+for var in env_vars:
+    if var is None:
+        raise RuntimeError(f'Unable to load {var} environment variable')
+
+class EnvVars:
+    SQLALCHEMY_DATABASE_URL: str = SQLALCHEMY_DATABASE_URL
+    BROWNFIELD_IMAGES_DIR: str  = BROWNFIELD_IMAGES_DIR

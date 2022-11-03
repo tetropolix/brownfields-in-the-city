@@ -2,3 +2,5 @@
 .env
 __pycache__
 .vscode
+test_local/
+brownfield_images/

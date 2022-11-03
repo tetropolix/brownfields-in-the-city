@@ -28,9 +28,9 @@ def get_union_lookup_values(session: Session):
     dynamic_values = dict(zip(keys,table_names))
     return session.execute(stmt,dynamic_values)
 
-def insert_new_brownfield(bf:NewBrownfield,sess:Session) -> int | None:
+def insert_new_brownfield(bf:NewBrownfield,image_dir_uuid:str,sess:Session) -> int | None:
     new_brownfield = Brownfield(
-        **bf.dict()
+        **bf.dict(),image_directory_uuid = image_dir_uuid
     )
     sess.add(new_brownfield)
     sess.commit()
