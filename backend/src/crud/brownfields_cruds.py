@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
+from pydantic_schemas.brownfield_schemas import NewBrownfield
 
-from database.brownfield_models import AreaSize, DegradationLevel, EconomicPotential, EnvironmentalBurdenInclusion, InfrastructureAvailability, Location, NaturalAndArchitecturalValue, OriginalFunctionalUtilization, OwnershipType, ResidentionalAreaCategory, Revitalization, Settlement, Utilization
+from database.brownfield_models import AreaSize, Brownfield, DegradationLevel, EconomicPotential, EnvironmentalBurdenInclusion, InfrastructureAvailability, Location, NaturalAndArchitecturalValue, OriginalFunctionalUtilization, OwnershipType, ResidentionalAreaCategory, Revitalization, Settlement, Utilization
 
 def get_union_lookup_values(session: Session):
     column_alias = "table_name"
@@ -26,3 +27,15 @@ def get_union_lookup_values(session: Session):
     keys = ["t" + str(val) for val in range(0,len(tables))]
     dynamic_values = dict(zip(keys,table_names))
     return session.execute(stmt,dynamic_values)
+
+def insert_new_brownfield(bf:NewBrownfield,sess:Session) -> int | None:
+    new_brownfield = Brownfield(
+        **(bf.dict())
+    )
+    print(new_brownfield)
+    print(bf.dict())
+    sess.add(new_brownfield)
+    sess.commit
+    print(new_brownfield.id)
+    return new_brownfield.id  # type: ignore
+     

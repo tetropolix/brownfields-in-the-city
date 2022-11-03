@@ -43,7 +43,7 @@ class Brownfield(Base):
 
 
     def __repr__(self):
-        return f"Brownfield (id = {self.id}) street={self.street} mapping year={self.mapping_year}"
+        return f"Brownfield (id = {self.id}) street={self.street} mapping={self.mapping_year} year={self.mapping_year}"
 
 ### Lookup tables
 ### Note: 1.ONDELETE for child tables (child tables of lookup tables below) is not specified = default = prevent from deleting if some child references it
