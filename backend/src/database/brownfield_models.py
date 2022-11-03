@@ -12,17 +12,17 @@ class Brownfield(Base):
     mapping_year = Column(Integer,nullable=False)
     altitude = Column(Float(precision=4),nullable=False)
 
-    ownership_type_id = Column(Integer,ForeignKey("brownfields.ownership_types.id"))
-    original_functional_utilization_id = Column(Integer,ForeignKey("brownfields.original_functional_utilizations.id"))
-    utilization_id = Column(Integer,ForeignKey("brownfields.utilizations.id"))
-    area_size_id = Column(Integer,ForeignKey("brownfields.area_sizes.id"))
-    location_id = Column(Integer,ForeignKey("brownfields.locations.id"))
-    degradation_level_id = Column(Integer,ForeignKey("brownfields.degradation_levels.id"))
-    residentional_area_category_id = Column(Integer,ForeignKey("brownfields.residentional_area_categories.id"))
-    settlement_id = Column(Integer,ForeignKey("brownfields.settlements.id"))
-    infrastructure_availability_id = Column(Integer,ForeignKey("brownfields.infrastructure_availabilities.id"))
-    natural_and_architectural_value_id = Column(Integer,ForeignKey("brownfields.natural_and_architectural_values.id"))
-    revitalization_id = Column(Integer,ForeignKey("brownfields.revitalizations.id"))
+    ownership_type_id = Column(Integer,ForeignKey("brownfields.ownership_types.id"),nullable=False)
+    original_functional_utilization_id = Column(Integer,ForeignKey("brownfields.original_functional_utilizations.id"),nullable=False)
+    utilization_id = Column(Integer,ForeignKey("brownfields.utilizations.id"),nullable=False)
+    area_size_id = Column(Integer,ForeignKey("brownfields.area_sizes.id"),nullable=False)
+    location_id = Column(Integer,ForeignKey("brownfields.locations.id"),nullable=False)
+    degradation_level_id = Column(Integer,ForeignKey("brownfields.degradation_levels.id"),nullable=False)
+    residentional_area_category_id = Column(Integer,ForeignKey("brownfields.residentional_area_categories.id"),nullable=False)
+    settlement_id = Column(Integer,ForeignKey("brownfields.settlements.id"),nullable=False)
+    infrastructure_availability_id = Column(Integer,ForeignKey("brownfields.infrastructure_availabilities.id"),nullable=False)
+    natural_and_architectural_value_id = Column(Integer,ForeignKey("brownfields.natural_and_architectural_values.id"),nullable=False)
+    revitalization_id = Column(Integer,ForeignKey("brownfields.revitalizations.id"),nullable=False)
     economic_potential_id = Column(Integer,ForeignKey("brownfields.economic_potentials.id"))
     environmental_burden_inclusion_id = Column(Integer,ForeignKey("brownfields.environmental_burden_inclusions.id"))
 
@@ -43,7 +43,27 @@ class Brownfield(Base):
 
 
     def __repr__(self):
-        return f"Brownfield (id = {self.id}) street={self.street} mapping={self.mapping_year} year={self.mapping_year}"
+        # return f"Brownfield (id = {self.id}) street={self.street} mapping_year={self.mapping_year}"
+        return f"""
+                {self.id}, 
+                {self.street}, 
+                {self.area_ha}, 
+                {self.mapping_year}, 
+                {self.altitude}, 
+                {self.ownership_type_id}, 
+                {self.original_functional_utilization_id}, 
+                {self.utilization_id}, 
+                {self.area_size_id}, 
+                {self.location_id}, 
+                {self.degradation_level_id}, 
+                {self.residentional_area_category_id}, 
+                {self.settlement_id}, 
+                {self.infrastructure_availability_id}, 
+                {self.natural_and_architectural_value_id}, 
+                {self.revitalization_id}, 
+                {self.economic_potential_id}, 
+                {self.environmental_burden_inclusion_id}, 
+                """
 
 ### Lookup tables
 ### Note: 1.ONDELETE for child tables (child tables of lookup tables below) is not specified = default = prevent from deleting if some child references it

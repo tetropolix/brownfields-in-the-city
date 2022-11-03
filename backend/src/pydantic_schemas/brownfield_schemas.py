@@ -19,9 +19,9 @@ class BrownfieldID(BaseModel):
     id: int
 
 class NewBrownfield(BaseModel):
-    street = str
-    area_ha = float
-    mapping_year = int
+    street : str
+    area_ha : float
+    mapping_year : int
     altitude : float
     ownership_type_id : int
     original_functional_utilization_id : int

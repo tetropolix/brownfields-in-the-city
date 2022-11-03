@@ -30,12 +30,10 @@ def get_union_lookup_values(session: Session):
 
 def insert_new_brownfield(bf:NewBrownfield,sess:Session) -> int | None:
     new_brownfield = Brownfield(
-        **(bf.dict())
+        **bf.dict()
     )
-    print(new_brownfield)
-    print(bf.dict())
     sess.add(new_brownfield)
-    sess.commit
+    sess.commit()
     print(new_brownfield.id)
     return new_brownfield.id  # type: ignore
      

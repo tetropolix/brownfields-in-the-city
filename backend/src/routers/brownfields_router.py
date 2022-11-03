@@ -29,7 +29,6 @@ def insert_brownfield(new_brownfield: NewBrownfield,sess: Session = Depends(get_
     '''
     New brownfield record insertion
     '''
-    print(new_brownfield)
     id = insert_new_brownfield(new_brownfield,sess)
     if(id== None):
         raise HTTPException(
