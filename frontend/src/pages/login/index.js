@@ -1,4 +1,6 @@
-import {Box, Button, Container, CssBaseline, TextField, Typography} from "@mui/material";
+import {Box, Button, Container, CssBaseline, Grid, TextField, Typography} from "@mui/material"
+import { Link as MUILink } from '@mui/material';
+import Link from "next/link";
 
 function Login() {
 
@@ -6,18 +8,17 @@ function Login() {
         <>
             <CssBaseline />
             <Container maxWidth={"xs"}>
-
                 <Box sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                        mt: 12,
+                        mt: 8,
                         p: 4,
                         border: '1px solid #C0C0C0',
                         boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
                         borderRadius: '12px'
                     }}
                 >
-                    <Typography component="h1" variant="h4" textAlign="center">
+                    <Typography component="h1" variant="h4" fontWeight="700">
                         Prihlásenie
                     </Typography>
 
@@ -50,6 +51,15 @@ function Login() {
                         >
                            Prihlásiť sa
                         </Button>
+
+
+                        <Grid item xs>
+                            <Link href="/">
+                                <MUILink href="#" variant="body2">
+                                    Kontakt na administrátora.
+                                </MUILink>
+                            </Link>
+                        </Grid>
                     </Box>
                 </Box>
 
