@@ -1,10 +1,11 @@
 import {Container, CssBaseline} from "@mui/material";
+import {theme} from "./LoginLayout.styles"
 
 function LoginLayout({ children }) {
     return (
-        <Container maxWidth="xxl" sx={{display: "flex", background: "linear-gradient(120grad, #e66465, #9198e5);", height: "100vh", p: 0}}>
+        <Container sx={theme.bg}>
             <CssBaseline />
-            <Container maxWidth="xs" sx={{display: "flex", alignItems: 'center'}}>
+            <Container maxWidth="xs" sx={theme.formHolder}>
                 {children}
             </Container>
         </Container>
