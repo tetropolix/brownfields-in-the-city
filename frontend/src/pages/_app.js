@@ -1,21 +1,19 @@
 import '../styles/globals.css'
-import {createTheme} from "@mui/material/styles";
 import {ThemeProvider} from "@mui/material";
+import {CacheProvider} from "@emotion/react";
+import createEmotionCache from "../utils/createEmotionCache";
+import {theme} from "../styles/styles"
 
-function MyApp({ Component, pageProps }) {
+const clientSideEmotionCache = createEmotionCache();
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#747ab7'
-      }
-    },
-  });
+function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }) {
 
   return (
-      <ThemeProvider theme={theme}>
-        <Component {...pageProps} />
-      </ThemeProvider>
+      <CacheProvider value={emotionCache}>
+        <ThemeProvider theme={theme}>
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </CacheProvider>
   )
 }
 
