@@ -55,7 +55,7 @@ function Login() {
 
                     <Grid item xs>
                         <Link href="/">
-                            <MUILink href="#" variant="body2">
+                            <MUILink href="#" variant="body2" sx={{textDecoration: "none"}}>
                                 Kontakt na administrátora
                             </MUILink>
                         </Link>
