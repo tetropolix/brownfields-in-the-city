@@ -17,11 +17,10 @@ function Login() {
             <ThemeProvider theme={theme}>
                 <Container maxWidth="xxl" sx={{display: "flex", background: "linear-gradient(120grad, #e66465, #9198e5);", height: "100vh", p: 0}}>
                     <CssBaseline />
-                    <Container maxWidth="xs">
+                    <Container maxWidth="xs" sx={{display: "flex", alignItems: 'center'}}>
                         <Box sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
-                                mt: 8,
                                 p: 4,
                                 border: '1px solid #C0C0C0',
                                 boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
