@@ -34,6 +34,5 @@ def insert_new_brownfield(bf:NewBrownfield,image_dir_uuid:str,sess:Session) -> i
     )
     sess.add(new_brownfield)
     sess.commit()
-    print(new_brownfield.id)
     return new_brownfield.id  # type: ignore
      

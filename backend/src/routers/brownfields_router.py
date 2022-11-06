@@ -1,11 +1,12 @@
 from pathlib import Path
 from fastapi import APIRouter,Depends,status,HTTPException, UploadFile,Form
 from sqlalchemy.orm import Session
+from pydantic_schemas.auth_schemas import User
 from custom_exceptions import EntityWasNotStored
 from pydantic_schemas.brownfield_schemas import BrownfieldID, FormFields, NewBrownfield
 from crud.brownfields_cruds import get_union_lookup_values, insert_new_brownfield
-from dependencies import get_session
-from .routers_utils import new_brownfield_image_upload, validate_raw_json_new_brownfield, clear_images_dir
+from dependencies import get_session, validate_raw_json_new_brownfield
+from .routers_utils import new_brownfield_image_upload, clear_images_dir
 from uuid import uuid4
 from globals import EnvVars
 from sqlalchemy.exc import SQLAlchemyError
@@ -31,7 +32,8 @@ def form_data(sess: Session = Depends(get_session)):
     return form_fields
 
 @router.post('/insert',response_model=BrownfieldID)
-def insert_brownfield(new_brownfield: NewBrownfield = Depends(validate_raw_json_new_brownfield),files: list[UploadFile]  | None = None,sess: Session = Depends(get_session)):
+def insert_brownfield(new_brownfield: NewBrownfield = Depends(validate_raw_json_new_brownfield),files: list[UploadFile]  | None = None,
+                      sess: Session = Depends(get_session)):
     '''
     New brownfield record insertion
     '''
@@ -52,3 +54,4 @@ def insert_brownfield(new_brownfield: NewBrownfield = Depends(validate_raw_json_
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Unable to store specified brownfield'
         )
+

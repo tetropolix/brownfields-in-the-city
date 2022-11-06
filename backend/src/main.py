@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from routers import brownfields_router
+from routers import brownfields_router,auth_router
 import globals #check if all env variables were initialized
 
 app = FastAPI()
 
+app.include_router(auth_router.router)
 app.include_router(brownfields_router.router)

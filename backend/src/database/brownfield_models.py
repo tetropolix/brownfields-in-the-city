@@ -1,4 +1,3 @@
-from re import A
 from sqlalchemy import ForeignKey,Integer,Column,String,Float,Numeric
 from sqlalchemy.orm import relationship
 from .database import Base
