@@ -1,4 +1,4 @@
-from crud.auth_cruds import get_user_by_email
+from crud.auth_cruds import get_user_by_session
 from pydantic_schemas.auth_schemas import User
 from database.database import Session
 from sqlalchemy.orm import Session as SQLASession
@@ -11,12 +11,16 @@ from pydantic import ValidationError
 from routers.routers_utils import decode_jwt
 from jose import JWTError
 
+## COMMON
+
 def get_session():
     sess = Session()
     try:
         yield sess
     finally:
         sess.close()
+
+## BROWNFIELDS
 
 def validate_raw_json_new_brownfield(data : str = Form(...)) -> NewBrownfield:
     try:
@@ -30,7 +34,7 @@ def validate_raw_json_new_brownfield(data : str = Form(...)) -> NewBrownfield:
 
 ### AUTH
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 async def get_current_user(token: str = Depends(oauth2_scheme),sess: SQLASession = Depends(get_session)) -> User:
     credentials_exception = HTTPException(
@@ -40,13 +44,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme),sess: SQLASession
     )
     try:
         payload = decode_jwt(token)
-        email: str = str(payload.get("sub"))
-        if email is None:
+        user_session: str = str(payload.get("sub"))
+        if user_session is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
+        token_data = TokenData(user_session=user_session)
     except JWTError:
         raise credentials_exception
-    user_in_db = get_user_by_email(token_data.email,sess)
+    user_in_db = get_user_by_session(token_data.user_session,sess)
     if user_in_db is None:
         raise credentials_exception
     return User(**user_in_db.dict())

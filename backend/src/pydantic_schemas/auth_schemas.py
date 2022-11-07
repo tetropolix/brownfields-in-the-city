@@ -12,6 +12,7 @@ class User(BaseModel):
     is_admin: bool
 
 class UserInDB(User):
+    last_session : str | None = None
     hashed_password: str
 
     class Config:
@@ -23,5 +24,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    email: str 
+    user_session: str 
     
