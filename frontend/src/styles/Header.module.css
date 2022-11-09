@@ -1,0 +1,17 @@
+.header {
+  background-color:#0d0d0d;
+  color: aliceblue;
+  padding: 10px 0px;
+}
+
+.header a {
+  padding: 0px 5px;
+}
+
+.header a:hover {
+  padding: 0px 5px;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+  color: deepskyblue;
+}
