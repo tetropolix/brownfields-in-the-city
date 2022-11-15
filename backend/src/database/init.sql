@@ -3,6 +3,7 @@ CREATE SCHEMA IF NOT EXISTS public;
 CREATE SCHEMA IF NOT EXISTS brownfields;
 CREATE SCHEMA IF NOT EXISTS auth;
 --TABLE INIT VALUES
+--BROWNFIELD LOOKUPS
 INSERT INTO brownfields.ownership_types(value)
 values ('Štátne'),
     ('Obecné'),
@@ -85,3 +86,38 @@ values (
 -- values ();
 -- INSERT INTO brownfields.environmental_burden_inclusions(value)
 -- values ();
+--AUTH LOOKUPS
+INSERT INTO auth.roles(name)
+values ('admin'),
+    ('clerk');
+INSERT INTO auth.permissions(name)
+values ('brownfields:create'),
+    ('brownfields:read'),
+    ('brownfields:update'),
+    ('brownfields:delete'),
+    ('users:read'),
+    ('users:create'),
+    ('users:update'),
+    ('users:delete');
+--Insert admin permissions
+INSERT INTO auth.role_permissions(role_id, permission_id) (
+        select roles.id as role_id,
+            permissions.id as permission_id
+        from auth.roles as roles
+            cross join auth.permissions as permissions
+        where roles.name = 'admin'
+    )
+--Insert clerk permissions
+INSERT INTO auth.role_permissions(role_id, permission_id) (
+        select roles.id as role_id,
+            permissions.id as permission_id
+        from auth.roles as roles
+            cross join auth.permissions as permissions
+        where roles.name = 'clerk'
+            and permissions.name in (
+                'brownfields:create',
+                'brownfields:read',
+                'brownfields:update',
+                'brownfields:delete'
+            )
+    )

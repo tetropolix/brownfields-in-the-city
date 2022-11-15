@@ -6,7 +6,7 @@ from shutil import rmtree
 from jose import jwt
 from passlib.context import CryptContext
 from globals import EnvVars,ALGORITHM
-from pydantic_schemas.auth_schemas import UserInDB
+from pydantic_schemas.auth_schemas import LoginUser
 
 
 def new_brownfield_image_upload(files: list[UploadFile],bf_images_dir_path:Path) -> None:
@@ -49,7 +49,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(client_password : str,user: UserInDB | None) -> bool:
+def authenticate_user(client_password : str,user: LoginUser | None) -> bool:
     if not user:
         return False
     if not verify_password(client_password, user.hashed_password):

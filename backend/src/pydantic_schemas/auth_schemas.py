@@ -9,11 +9,16 @@ class User(BaseModel):
     email : str
     phone : str
     is_active : bool
-    is_admin: bool
 
 class UserInDB(User):
     last_session : str | None = None
+
+    class Config:
+        orm_mode = True
+
+class LoginUser(User):
     hashed_password: str
+    permissions: list[int] = []
 
     class Config:
         orm_mode = True
