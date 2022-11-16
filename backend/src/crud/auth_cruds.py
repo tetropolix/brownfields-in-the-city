@@ -4,6 +4,8 @@ from sqlalchemy import select,update
 from database.auth_models import User,Role
 from email_validator import validate_email, EmailNotValidError
 from fastapi import HTTPException
+from globals import PERMISSIONS
+from custom_exceptions import UserPermissionException
 
 def create_new_user(new_user: NewUser,sess: Session) ->  None:
     new_user_dict = new_user.dict()
@@ -28,12 +30,16 @@ def get_user_by_email(email:str,sess: Session) -> LoginUser | None:
     join auth.permissions as perms on rp.permission_id = perms.id
     where users.email = '%s';
     ''' % email
-    print(stmt) # TODO stmt returns 4 rows -> permissions when only one row (User) is required
-    res = sess.execute(stmt).scalar_one_or_none()
-    print(res)
-    if res is None:
+    res = sess.execute(stmt).all()
+    if res == []:
         return None
-    return LoginUser.from_orm(res)
+    try:
+        user_permissions = [t.name for t in res]  # type: ignore -- ignores type hinting for Row namedtuple
+        user_permissions = PERMISSIONS.get_perms_numbers(user_permissions)
+    except UserPermissionException:
+        raise HTTPException(500)
+    user_hashed_pass = res[0].hashed_password # type: ignore -- ignores type hinting for Row namedtuple
+    return LoginUser(hashed_password=user_hashed_pass,permissions=user_permissions)
 
 def get_user_by_session(user_session:str,sess: Session) -> UserInDB | None:
     stmt = select(User).where(User.last_session == user_session)

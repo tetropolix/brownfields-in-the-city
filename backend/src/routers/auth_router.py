@@ -21,7 +21,8 @@ router =  APIRouter(
 async def login(form_data: OAuth2PasswordRequestForm = Depends(),sess: Session = Depends(get_session)):
     '''Route which grants access token to the client(browser) - used as login mechanism'''
     user_in_db = get_user_by_email(form_data.username,sess)
-    if not authenticate_user(form_data.password,user_in_db):
+    print(user_in_db)
+    if not authenticate_user(form_data.password,user_in_db) or user_in_db is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -30,7 +31,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),sess: Session =
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     generated_user_session = token_urlsafe(32)
     access_token = create_access_token(
-        data={"sub": generated_user_session}, expires_delta=access_token_expires
+        data={"sub": generated_user_session,"roles":user_in_db.permissions}, expires_delta=access_token_expires
     )
     assign_user_new_session(form_data.username,generated_user_session,sess)
     return {"access_token": access_token, "token_type": "bearer"}

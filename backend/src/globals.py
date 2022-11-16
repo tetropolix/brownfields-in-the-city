@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 from enum import Enum
+from custom_exceptions import UserPermissionException
 
 load_dotenv()
 
@@ -33,3 +34,28 @@ class PERMISSIONS(Enum):
     USER_READ = 6
     USER_UPDATE = 7
     USER_DELETE = 8
+
+    @classmethod
+    def get_perms_numbers(cls,perms:list[str]):
+        perms_numbers: list[int] = []
+        for perm in perms:
+            match perm:
+                case"brownfields:create":
+                    perms_numbers.append(cls.BF_CREATE.value)
+                case "brownfields:read":
+                    perms_numbers.append(cls.BF_READ.value)
+                case "brownfields:update":
+                    perms_numbers.append(cls.BF_UPDATE.value)
+                case "brownfields:delete":
+                    perms_numbers.append(cls.BF_DELETE.value)
+                case "users:read":
+                    perms_numbers.append(cls.USER_READ.value)
+                case "users:create":
+                    perms_numbers.append(cls.USER_CREATE.value)
+                case "users:update":
+                    perms_numbers.append(cls.USER_UPDATE.value)
+                case "users:delete":
+                    perms_numbers.append(cls.USER_DELETE.value)
+                case _:
+                    raise UserPermissionException()
+        return perms_numbers

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from globals import PERMISSIONS
 
 class NewUser(BaseModel):
     email: str
@@ -9,19 +10,19 @@ class User(BaseModel):
     email : str
     phone : str
     is_active : bool
-
+    
 class UserInDB(User):
     last_session : str | None = None
 
     class Config:
         orm_mode = True
 
-class LoginUser(User):
-    hashed_password: str
-    permissions: list[int] = []
+class UserWithPermissions(User):
+    permissions: list[int]
 
-    class Config:
-        orm_mode = True
+class LoginUser(BaseModel):
+    hashed_password: str
+    permissions: list[int]
 
 class Token(BaseModel):
     access_token: str
@@ -30,4 +31,5 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_session: str 
+    permissions: list[int]
     
