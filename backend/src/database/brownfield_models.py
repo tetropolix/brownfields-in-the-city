@@ -43,7 +43,6 @@ class Brownfield(Base):
 
 
     def __repr__(self):
-        # return f"Brownfield (id = {self.id}) street={self.street} mapping_year={self.mapping_year}"
         return f"""
                 {self.id}, 
                 {self.street}, 

@@ -1,10 +1,10 @@
 from pathlib import Path
-from fastapi import APIRouter,Depends,status,HTTPException, UploadFile,Form
+from fastapi import APIRouter,Depends,status,HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from pydantic_schemas.auth_schemas import User
 from custom_exceptions import EntityWasNotStored
-from pydantic_schemas.brownfield_schemas import BrownfieldID, FormFields, NewBrownfield
-from crud.brownfields_cruds import get_union_lookup_values, insert_new_brownfield
+from pydantic_schemas.brownfield_schemas import BrownfieldID, FormFields, NewBrownfield, Brownfield
+from crud.brownfields_cruds import get_union_lookup_values, insert_new_brownfield,query_brownfield
 from dependencies import get_session, validate_raw_json_new_brownfield
 from .routers_utils import new_brownfield_image_upload, clear_images_dir
 from uuid import uuid4
@@ -55,3 +55,10 @@ def insert_brownfield(new_brownfield: NewBrownfield = Depends(validate_raw_json_
             detail='Unable to store specified brownfield'
         )
 
+@router.get('/brownfield/{bf_id}',response_model=Brownfield)
+def get_brownfield(bf_id : int,sess: Session = Depends(get_session)):
+    bf = query_brownfield(bf_id,sess)
+    if (bf is None):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='Resource not found')
+    return bf
+    

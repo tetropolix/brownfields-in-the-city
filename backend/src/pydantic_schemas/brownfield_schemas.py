@@ -36,3 +36,23 @@ class NewBrownfield(BaseModel):
     revitalization_id : int
     economic_potential_id : int | None # TO DO
     environmental_burden_inclusion_id : int | None # TO DO
+
+class Brownfield(BaseModel):
+    street : str
+    area_ha : float
+    mapping_year : int
+    altitude : float
+    ownership_type : str
+    original_functional_utilization : str
+    utilization : str
+    area_size : str
+    location : str
+    degradation_level : str
+    residentional_area_category : str
+    settlement : str
+    infrastructure_availability : str
+    natural_and_architectural_value : str
+    revitalization : str
+    economic_potential : str | None # TO DO
+    environmental_burden_inclusion : str | None # TO DO
+    image_urls: list[str]

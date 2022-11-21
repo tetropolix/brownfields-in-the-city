@@ -5,11 +5,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from dependencies import get_current_active_user
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from dependencies import get_session
+from dependencies import get_session,Protected
 from pydantic_schemas.auth_schemas import NewUser, User,Token
 from crud.auth_cruds import assign_user_new_session, create_new_user,get_user_by_email,remove_user_session
 from .routers_utils import create_access_token, get_password_hash,authenticate_user
-from globals import ACCESS_TOKEN_EXPIRE_MINUTES
+from globals import ACCESS_TOKEN_EXPIRE_MINUTES,PERMISSIONS
 from secrets import token_urlsafe
 
 router =  APIRouter(
@@ -57,7 +57,7 @@ def register_user(new_user: NewUser,sess: Session = Depends(get_session)):
     return {}
 
 @router.get("/users/me")
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+async def read_users_me(current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ]))):
     '''Testing purpose'''
     return current_user
     
