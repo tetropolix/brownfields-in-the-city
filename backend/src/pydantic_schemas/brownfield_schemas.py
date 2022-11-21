@@ -1,58 +1,66 @@
-from pydantic import BaseModel 
+from pydantic import BaseModel
+
 
 class FormFields(BaseModel):
-    ownership_types : dict[int,str]
-    original_functional_utilizations : dict[int,str]
-    utilizations : dict[int,str]
-    area_sizes : dict[int,str]
-    locations : dict[int,str]
-    degradation_levels : dict[int,str]
-    residentional_area_categories : dict[int,str]
-    settlements : dict[int,str]
-    infrastructure_availabilities : dict[int,str]
-    natural_and_architectural_values : dict[int,str]
-    revitalizations : dict[int,str]
-    economic_potentials : dict[int,str] | None # TO DO
-    environmental_burden_inclusions : dict[int,str] | None # TO DO
+    ownership_types: dict[int, str]
+    original_functional_utilizations: dict[int, str]
+    utilizations: dict[int, str]
+    area_sizes: dict[int, str]
+    locations: dict[int, str]
+    degradation_levels: dict[int, str]
+    residentional_area_categories: dict[int, str]
+    settlements: dict[int, str]
+    infrastructure_availabilities: dict[int, str]
+    natural_and_architectural_values: dict[int, str]
+    revitalizations: dict[int, str]
+    economic_potentials: dict[int, str] | None  # TO DO
+    environmental_burden_inclusions: dict[int, str] | None  # TO DO
+
 
 class BrownfieldID(BaseModel):
     id: int
 
-class NewBrownfield(BaseModel):
-    street : str
-    area_ha : float
-    mapping_year : int
-    altitude : float
-    ownership_type_id : int
-    original_functional_utilization_id : int
-    utilization_id : int
-    area_size_id : int
-    location_id : int
-    degradation_level_id : int
-    residentional_area_category_id : int
-    settlement_id : int
-    infrastructure_availability_id : int
-    natural_and_architectural_value_id : int
-    revitalization_id : int
-    economic_potential_id : int | None # TO DO
-    environmental_burden_inclusion_id : int | None # TO DO
 
-class Brownfield(BaseModel):
-    street : str
-    area_ha : float
-    mapping_year : int
-    altitude : float
-    ownership_type : str
-    original_functional_utilization : str
-    utilization : str
-    area_size : str
-    location : str
-    degradation_level : str
-    residentional_area_category : str
-    settlement : str
-    infrastructure_availability : str
-    natural_and_architectural_value : str
-    revitalization : str
-    economic_potential : str | None # TO DO
-    environmental_burden_inclusion : str | None # TO DO
+class NewBrownfield(BaseModel):
+    street: str
+    area_ha: float
+    mapping_year: int
+    altitude: float
+    ownership_type_id: int
+    original_functional_utilization_id: int
+    utilization_id: int
+    area_size_id: int
+    location_id: int
+    degradation_level_id: int
+    residentional_area_category_id: int
+    settlement_id: int
+    infrastructure_availability_id: int
+    natural_and_architectural_value_id: int
+    revitalization_id: int
+    economic_potential_id: int | None  # TO DO
+    environmental_burden_inclusion_id: int | None  # TO DO
+
+
+class BrownfieldCore(BaseModel):
+    street: str
+    area_ha: float
+    mapping_year: int
+    altitude: float
+    ownership_type: str
+    image_urls: str | None
+
+
+class Brownfield(BrownfieldCore):
+    original_functional_utilization: str
+    utilization: str
+    area_size: str
+    location: str
+    degradation_level: str
+    residentional_area_category: str
+    settlement: str
+    infrastructure_availability: str
+    natural_and_architectural_value: str
+    revitalization: str
+    economic_potential: str | None  # TO DO
+    environmental_burden_inclusion: str | None  # TO DO
     image_urls: list[str]
