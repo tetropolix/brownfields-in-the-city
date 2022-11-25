@@ -84,4 +84,3 @@ class Protected:
                     status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
                 )
         return User(**active_user.dict())
-

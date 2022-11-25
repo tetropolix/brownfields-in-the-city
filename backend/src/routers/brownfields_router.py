@@ -93,7 +93,9 @@ def get_brownfields(
 ):
     print(params)
     res = query_brownfields(sess, params.offset, params.limit)
-    if len(res) == 0:
+    if len(res) == 0 and params.offset == 0:  # no brownfield in DB
+        return paginate([], 0, params)
+    elif len(res) == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found"
         )
