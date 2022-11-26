@@ -86,6 +86,7 @@ def query_brownfield(bf_id: int, sess: Session) -> BrownfieldSchema | None:
     images_dir = join(BROWNFIELD_IMAGES_DIR, res.image_directory_uuid)  # type: ignore
     urls = [f for f in listdir(images_dir) if isfile(join(images_dir, f))]
     return BrownfieldSchema(
+        id=res.id,  # type: ignore
         street=res.street,  # type: ignore
         area_ha=res.area_ha,  # type: ignore
         mapping_year=res.mapping_year,  # type: ignore
@@ -124,6 +125,7 @@ def get_brownfield_cores(brownfields: list[Brownfield]) -> list[BrownfieldCore]:
         images_dir = join(BROWNFIELD_IMAGES_DIR, bf.image_directory_uuid)  # type: ignore
         bf_cores.append(
             BrownfieldCore(
+                id=bf.id,  # type: ignore
                 street=bf.street,  # type: ignore
                 area_ha=bf.area_ha,  # type: ignore
                 mapping_year=bf.mapping_year,  # type: ignore

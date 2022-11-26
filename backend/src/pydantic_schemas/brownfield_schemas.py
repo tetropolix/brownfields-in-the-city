@@ -42,6 +42,7 @@ class NewBrownfield(BaseModel):
 
 
 class BrownfieldCore(BaseModel):
+    id: int
     street: str
     area_ha: float
     mapping_year: int

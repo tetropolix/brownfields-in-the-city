@@ -21,9 +21,9 @@ def new_brownfield_image_upload(
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     elif len(files) > 8:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-    # start writing files to disk, in case some of the file exceeds max size throw exception and delete everything that was written
+    # create images_uuid_dir and start writing files to disk, in case some of the file exceeds max size throw exception and delete everything that was written
     try:
-        bf_images_dir_path.mkdir(exist_ok=False)
+        create_bf_images_dir(bf_images_dir_path)
     except FileExistsError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -39,6 +39,10 @@ def new_brownfield_image_upload(
 
 def clear_images_dir(dir_path: Path):
     rmtree(dir_path)
+
+
+def create_bf_images_dir(dir_path: Path):
+    dir_path.mkdir(exist_ok=False)
 
 
 # auth

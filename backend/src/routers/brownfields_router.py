@@ -25,6 +25,7 @@ from .routers_utils import (
     LimitOffsetParams,
     LimitOffsetPage,
     paginate,
+    create_bf_images_dir,
 )
 from uuid import uuid4
 from globals import EnvVars
@@ -63,6 +64,13 @@ def insert_brownfield(
     dir_path = Path(EnvVars.BROWNFIELD_IMAGES_DIR, bf_images_dir)
     if files is not None:
         new_brownfield_image_upload(files, dir_path)
+    else:  # try create at least bf images dir
+        try:
+            create_bf_images_dir(dir_path)
+        except FileExistsError:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
     try:
         id = insert_new_brownfield(new_brownfield, bf_images_dir, sess)
         if not id:
