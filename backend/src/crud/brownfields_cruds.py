@@ -1,3 +1,4 @@
+from pathlib import Path
 from sqlalchemy.orm import Session
 from pydantic_schemas.brownfield_schemas import (
     NewBrownfield,
@@ -8,7 +9,8 @@ from sqlalchemy import select, text
 from database.brownfield_models import Brownfield
 from os.path import join, isfile
 from os import listdir
-from globals import BROWNFIELD_IMAGES_DIR
+from globals import EnvVars
+
 
 from database.brownfield_models import (
     AreaSize,
@@ -83,8 +85,7 @@ def query_brownfield(bf_id: int, sess: Session) -> BrownfieldSchema | None:
     res: Brownfield | None = sess.execute(stmt).scalar_one_or_none()
     if res is None:
         return None
-    images_dir = join(BROWNFIELD_IMAGES_DIR, res.image_directory_uuid)  # type: ignore
-    urls = [f for f in listdir(images_dir) if isfile(join(images_dir, f))]
+    urls = get_static_image_paths_bf(res.image_directory_uuid)  # type: ignore
     return BrownfieldSchema(
         id=res.id,  # type: ignore
         street=res.street,  # type: ignore
@@ -122,7 +123,6 @@ def query_brownfields(
 def get_brownfield_cores(brownfields: list[Brownfield]) -> list[BrownfieldCore]:
     bf_cores = []
     for bf in brownfields:
-        images_dir = join(BROWNFIELD_IMAGES_DIR, bf.image_directory_uuid)  # type: ignore
         bf_cores.append(
             BrownfieldCore(
                 id=bf.id,  # type: ignore
@@ -132,9 +132,30 @@ def get_brownfield_cores(brownfields: list[Brownfield]) -> list[BrownfieldCore]:
                 altitude=bf.altitude,  # type: ignore
                 ownership_type=bf.ownership_type.value,
                 image_urls=next(
-                    (f for f in listdir(images_dir) if isfile(join(images_dir, f))),
+                    (
+                        p
+                        for p in get_static_image_paths_bf(
+                            bf.image_directory_uuid  # type:ignore
+                        )
+                    ),
                     None,
                 ),
             )
         )
     return bf_cores
+
+
+def get_static_image_paths_bf(image_directory_uuid: str) -> list[str]:
+    images_dir = join(EnvVars.BROWNFIELDS_IMAGES_DIR, image_directory_uuid)
+    paths = [
+        str(
+            Path(
+                EnvVars.BROWFIELDS_STATIC_PATH_IMAGES,
+                image_directory_uuid,
+                f,
+            )
+        )
+        for f in listdir(images_dir)
+        if isfile(join(images_dir, f))
+    ]
+    return paths

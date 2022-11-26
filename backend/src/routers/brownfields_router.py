@@ -61,7 +61,7 @@ def insert_brownfield(
     """
 
     bf_images_dir = str(uuid4())
-    dir_path = Path(EnvVars.BROWNFIELD_IMAGES_DIR, bf_images_dir)
+    dir_path = Path(EnvVars.BROWNFIELDS_IMAGES_DIR, bf_images_dir)
     if files is not None:
         new_brownfield_image_upload(files, dir_path)
     else:  # try create at least bf images dir

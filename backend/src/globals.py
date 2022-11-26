@@ -2,27 +2,47 @@ from dotenv import load_dotenv
 import os
 from enum import Enum
 from custom_exceptions import UserPermissionException
+from pathlib import Path
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-BROWNFIELD_IMAGES_DIR = os.getenv("BROWNFIELD_IMAGES_DIR")
-SECRET_KEY = os.getenv("SECRET_KEY")
 MAX_IMAGE_UPLOAD_SIZE = 2097152  # in bytes = 2MB
 ALGORITHM = "HS256"
+IMAGES_DIR = "images"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-env_vars = [SQLALCHEMY_DATABASE_URL, BROWNFIELD_IMAGES_DIR, SECRET_KEY]
+env_vars = dict(
+    SQLALCHEMY_DATABASE_URL=os.getenv("SQLALCHEMY_DATABASE_URL"),
+    BROWNFIELDS_STATIC_DIR=os.getenv("BROWNFIELDS_STATIC_DIR"),
+    SECRET_KEY=os.getenv("SECRET_KEY"),
+    BROWFIELDS_STATIC_PATH_IMAGES=os.getenv("BROWFIELDS_STATIC_PATH_IMAGES"),
+    BROWNFIELDS_IMAGES_DIR=os.getenv("BROWNFIELDS_IMAGES_DIR"),
+)
 
-for var in env_vars:
-    if var is None:
-        raise RuntimeError(f"Unable to load environment variable")
+# Check if env variables were incialized
+for key, val in env_vars.items():
+    if val is None:
+        raise RuntimeError(f"Unable to load value for environment variable {key}")
 
 
 class EnvVars:
-    SQLALCHEMY_DATABASE_URL: str = SQLALCHEMY_DATABASE_URL
-    BROWNFIELD_IMAGES_DIR: str = BROWNFIELD_IMAGES_DIR
-    SECRET_KEY: str = SECRET_KEY
+    SQLALCHEMY_DATABASE_URL: str = env_vars.get("SQLALCHEMY_DATABASE_URL")  # type: ignore
+    SECRET_KEY: str = env_vars.get("SECRET_KEY")  # type: ignore
+    BROWNFIELDS_STATIC_DIR: str = env_vars.get("BROWNFIELDS_STATIC_DIR")  # type: ignore
+    BROWNFIELDS_IMAGES_DIR: str = env_vars.get("BROWNFIELDS_IMAGES_DIR")  # type: ignore
+    BROWFIELDS_STATIC_PATH_IMAGES: str = env_vars.get("BROWFIELDS_STATIC_PATH_IMAGES")  # type: ignore
+
+
+# Check if env paths are exisiting directories
+for p in [
+    EnvVars.BROWNFIELDS_STATIC_DIR,
+    EnvVars.BROWNFIELDS_IMAGES_DIR,
+]:
+    if not (os.path.exists(p) and os.path.isdir(p)):
+        raise RuntimeError(f"Necessary directory {p} is missing")
+
+# No check for static paths which should be part of static dir - TODO
+
 
 class PERMISSIONS(Enum):
     BF_CREATE = 1

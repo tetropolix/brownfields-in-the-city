@@ -9,6 +9,7 @@ from passlib.context import CryptContext
 from globals import EnvVars, ALGORITHM
 from pydantic_schemas.auth_schemas import LoginUser
 
+#Brownfields
 
 def new_brownfield_image_upload(
     files: list[UploadFile], bf_images_dir_path: Path
