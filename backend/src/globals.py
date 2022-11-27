@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 from enum import Enum
 from custom_exceptions import UserPermissionException
-from pathlib import Path
 
 load_dotenv()
 

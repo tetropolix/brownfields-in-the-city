@@ -1,15 +1,14 @@
-from pathlib import Path
 from sqlalchemy.orm import Session
 from pydantic_schemas.brownfield_schemas import (
     NewBrownfield,
     Brownfield as BrownfieldSchema,
     BrownfieldCore,
+    BrownfieldsFilters,
+    BrownfieldsDials,
+    AvailableBrownfieldsFilters,
 )
-from sqlalchemy import select, text
+from sqlalchemy import select, text, func
 from database.brownfield_models import Brownfield
-from os.path import join, isfile
-from os import listdir
-from globals import EnvVars
 
 
 from database.brownfield_models import (
@@ -28,6 +27,7 @@ from database.brownfield_models import (
     Settlement,
     Utilization,
 )
+from .crud_utils import assign_filters_bf_query, get_static_image_paths_bf
 
 
 def get_union_lookup_values(session: Session):
@@ -71,6 +71,32 @@ def get_union_lookup_values(session: Session):
     return session.execute(text(stmt), dynamic_values)
 
 
+def get_form_fields(sess: Session) -> BrownfieldsDials:
+    result = get_union_lookup_values(sess)
+    form_fields = {}
+    for row in result:
+        row = dict(row)
+        row_table_name = row["table_name"]
+        if not form_fields.get(row_table_name):
+            form_fields[row_table_name] = {}
+        form_fields[row_table_name][row["id"]] = row["value"]
+    return BrownfieldsDials(**form_fields)
+
+
+# Very poor approach of querying min/max values - TODO better approach
+def get_available_bf_filters(sess: Session) -> AvailableBrownfieldsFilters:
+    bf_dials = get_form_fields(sess)
+    max_values = {
+        "area_ha_max": sess.query(func.max(Brownfield.area_ha)).scalar(),
+        "area_ha_min": sess.query(func.min(Brownfield.area_ha)).scalar(),
+        "mapping_year_max": sess.query(func.max(Brownfield.mapping_year)).scalar(),
+        "mapping_year_min": sess.query(func.min(Brownfield.mapping_year)).scalar(),
+        "altitude_max": sess.query(func.max(Brownfield.altitude)).scalar(),
+        "altitude_min": sess.query(func.min(Brownfield.altitude)).scalar(),
+    }
+    return AvailableBrownfieldsFilters(**bf_dials.dict(), **max_values)
+
+
 def insert_new_brownfield(
     bf: NewBrownfield, image_dir_uuid: str, sess: Session
 ) -> int | None:
@@ -110,13 +136,19 @@ def query_brownfield(bf_id: int, sess: Session) -> BrownfieldSchema | None:
 
 
 def query_brownfields(
-    sess: Session, offset: int = 0, limit: int | None = None
+    sess: Session,
+    offset: int = 0,
+    limit: int | None = None,
+    filters: BrownfieldsFilters | None = None,
 ) -> list[Brownfield]:
     query = sess.query(Brownfield)
+    if not (filters is None):
+        query = assign_filters_bf_query(query, filters)
     if limit:
         query = query.limit(limit)
     if offset and limit:
         query = query.offset(offset)
+
     return query.all()
 
 
@@ -143,19 +175,3 @@ def get_brownfield_cores(brownfields: list[Brownfield]) -> list[BrownfieldCore]:
             )
         )
     return bf_cores
-
-
-def get_static_image_paths_bf(image_directory_uuid: str) -> list[str]:
-    images_dir = join(EnvVars.BROWNFIELDS_IMAGES_DIR, image_directory_uuid)
-    paths = [
-        str(
-            Path(
-                EnvVars.BROWFIELDS_STATIC_PATH_IMAGES,
-                image_directory_uuid,
-                f,
-            )
-        )
-        for f in listdir(images_dir)
-        if isfile(join(images_dir, f))
-    ]
-    return paths

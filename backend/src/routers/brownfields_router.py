@@ -1,22 +1,24 @@
 from pathlib import Path
-from fastapi import APIRouter, Depends, status, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, Request
 from sqlalchemy.orm import Session
-from pydantic_schemas.auth_schemas import User
 from custom_exceptions import EntityWasNotStored
 from database.brownfield_models import Brownfield as BrownfieldModel
 from pydantic_schemas.brownfield_schemas import (
+    AvailableBrownfieldsFilters,
     BrownfieldID,
-    FormFields,
+    BrownfieldsDials,
     NewBrownfield,
     Brownfield,
     BrownfieldCore,
+    BrownfieldsFilters,
 )
 from crud.brownfields_cruds import (
-    get_union_lookup_values,
+    get_form_fields,
     insert_new_brownfield,
     query_brownfield,
     query_brownfields,
     get_brownfield_cores,
+    get_available_bf_filters,
 )
 from dependencies import get_session, validate_raw_json_new_brownfield
 from .routers_utils import (
@@ -34,20 +36,12 @@ from sqlalchemy.exc import SQLAlchemyError
 router = APIRouter(prefix="/brownfields", tags=["brownfields"])
 
 
-@router.get("/form-fields", response_model=FormFields)
+@router.get("/form-fields", response_model=BrownfieldsDials)
 def form_data(sess: Session = Depends(get_session)):
     """
     Returns fields for dropdown menus - used to load values for brownfields creation form
     """
-    result = get_union_lookup_values(sess)
-    form_fields = {}
-    for row in result:
-        row = dict(row)
-        row_table_name = row["table_name"]
-        if not form_fields.get(row_table_name):
-            form_fields[row_table_name] = {}
-        form_fields[row_table_name][row["id"]] = row["value"]
-    return form_fields
+    return get_form_fields(sess)
 
 
 @router.post("/insert", response_model=BrownfieldID)
@@ -95,12 +89,26 @@ def get_brownfield(bf_id: int, sess: Session = Depends(get_session)):
     return bf
 
 
-@router.get("/brownfields", response_model=LimitOffsetPage[BrownfieldCore])
+@router.api_route(
+    "/brownfields",
+    response_model=LimitOffsetPage[BrownfieldCore],
+    methods=["GET", "POST"],
+)
 def get_brownfields(
-    params: LimitOffsetParams = Depends(), sess: Session = Depends(get_session)
+    request: Request,
+    filters: BrownfieldsFilters | None = None,
+    params: LimitOffsetParams = Depends(),
+    sess: Session = Depends(get_session),
 ):
-    print(params)
-    res = query_brownfields(sess, params.offset, params.limit)
+    if (
+        filters is None
+        and request.method == "POST"
+        or (filters is not None and request.method == "GET")
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong http method usage"
+        )
+    res = query_brownfields(sess, params.offset, params.limit, filters)
     if len(res) == 0 and params.offset == 0:  # no brownfield in DB
         return paginate([], 0, params)
     elif len(res) == 0:
@@ -110,3 +118,8 @@ def get_brownfields(
     bf_cores = get_brownfield_cores(res)
     total = sess.query(BrownfieldModel.id).count()
     return paginate(bf_cores, total, params)
+
+
+@router.get("/filters", response_model=AvailableBrownfieldsFilters)
+def get_filters(sess: Session = Depends(get_session)):
+    return get_available_bf_filters(sess)

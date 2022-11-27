@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class FormFields(BaseModel):
+class BrownfieldsDials(BaseModel):
     ownership_types: dict[int, str]
     original_functional_utilizations: dict[int, str]
     utilizations: dict[int, str]
@@ -15,6 +15,38 @@ class FormFields(BaseModel):
     revitalizations: dict[int, str]
     economic_potentials: dict[int, str] | None  # TO DO
     environmental_burden_inclusions: dict[int, str] | None  # TO DO
+
+
+class BrownfieldsFilters(BaseModel):
+    street: str | None
+    area_ha_max: int | None
+    area_ha_min: int | None
+    mapping_year_max: int | None
+    mapping_year_min: int | None
+    altitude_max: int | None
+    altitude_min: int | None
+    ownership_types: list[int] | None
+    original_functional_utilizations: list[int] | None
+    utilizations: list[int] | None
+    area_sizes: list[int] | None
+    locations: list[int] | None
+    degradation_levels: list[int] | None
+    residentional_area_categories: list[int] | None
+    settlements: list[int] | None
+    infrastructure_availabilities: list[int] | None
+    natural_and_architectural_values: list[int] | None
+    revitalizations: list[int] | None
+    economic_potentials: list[int] | None
+    environmental_burden_inclusions: list[int] | None
+
+
+class AvailableBrownfieldsFilters(BrownfieldsDials):
+    area_ha_max: float | None = None
+    area_ha_min: float | None = None
+    mapping_year_max: int | None = None
+    mapping_year_min: int | None = None
+    altitude_max: float | None = None
+    altitude_min: float | None = None
 
 
 class BrownfieldID(BaseModel):
