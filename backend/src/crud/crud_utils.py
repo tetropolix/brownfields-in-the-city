@@ -22,6 +22,7 @@ from database.brownfield_models import (
     Revitalization,
     Settlement,
     Utilization,
+    Color,
 )
 
 # crud utils
@@ -58,6 +59,8 @@ def assign_filters_bf_query(query: Query, filters: BrownfieldsFilters):
         query = query.filter(Brownfield.altitude <= filters.altitude_max)
     if filters.altitude_min is not None:
         query = query.filter(Brownfield.altitude >= filters.altitude_min)
+    if filters.colors is not None:
+        query = query.filter(Brownfield.color.has(Color.id.in_(filters.colors)))
     if filters.ownership_types is not None:
         query = query.filter(
             Brownfield.ownership_type.has(OwnershipType.id.in_(filters.ownership_types))

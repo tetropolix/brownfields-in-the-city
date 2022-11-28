@@ -13,7 +13,7 @@ from pydantic_schemas.brownfield_schemas import (
     BrownfieldsFilters,
 )
 from crud.brownfields_cruds import (
-    get_form_fields,
+    get_brownfields_dials,
     insert_new_brownfield,
     query_brownfield,
     query_brownfields,
@@ -41,7 +41,7 @@ def form_data(sess: Session = Depends(get_session)):
     """
     Returns fields for dropdown menus - used to load values for brownfields creation form
     """
-    return get_form_fields(sess)
+    return get_brownfields_dials(sess)
 
 
 @router.post("/insert", response_model=BrownfieldID)
@@ -89,25 +89,35 @@ def get_brownfield(bf_id: int, sess: Session = Depends(get_session)):
     return bf
 
 
-@router.api_route(
+@router.get(
     "/brownfields",
     response_model=LimitOffsetPage[BrownfieldCore],
-    methods=["GET", "POST"],
 )
 def get_brownfields(
-    request: Request,
-    filters: BrownfieldsFilters | None = None,
     params: LimitOffsetParams = Depends(),
     sess: Session = Depends(get_session),
 ):
-    if (
-        filters is None
-        and request.method == "POST"
-        or (filters is not None and request.method == "GET")
-    ):
+    res = query_brownfields(sess, params.offset, params.limit, filters=None)
+    if len(res) == 0 and params.offset == 0:  # no brownfield in DB
+        return paginate([], 0, params)
+    elif len(res) == 0:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Wrong http method usage"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found"
         )
+    bf_cores = get_brownfield_cores(res)
+    total = sess.query(BrownfieldModel.id).count()
+    return paginate(bf_cores, total, params)
+
+
+@router.post(
+    "/brownfields",
+    response_model=LimitOffsetPage[BrownfieldCore],
+)
+def get_brownfields_with_filters(
+    filters: BrownfieldsFilters,
+    params: LimitOffsetParams = Depends(),
+    sess: Session = Depends(get_session),
+):
     res = query_brownfields(sess, params.offset, params.limit, filters)
     if len(res) == 0 and params.offset == 0:  # no brownfield in DB
         return paginate([], 0, params)

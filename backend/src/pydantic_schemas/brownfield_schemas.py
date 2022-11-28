@@ -1,7 +1,14 @@
 from pydantic import BaseModel
 
 
+class BrownfieldColorDial(BaseModel):
+    id: int
+    name: str
+    hex_value: str
+
+
 class BrownfieldsDials(BaseModel):
+    colors: list[BrownfieldColorDial]
     ownership_types: dict[int, str]
     original_functional_utilizations: dict[int, str]
     utilizations: dict[int, str]
@@ -25,6 +32,7 @@ class BrownfieldsFilters(BaseModel):
     mapping_year_min: int | None
     altitude_max: int | None
     altitude_min: int | None
+    colors: list[int] | None
     ownership_types: list[int] | None
     original_functional_utilizations: list[int] | None
     utilizations: list[int] | None
@@ -58,6 +66,7 @@ class NewBrownfield(BaseModel):
     area_ha: float
     mapping_year: int
     altitude: float
+    color_id: int
     ownership_type_id: int
     original_functional_utilization_id: int
     utilization_id: int
@@ -84,6 +93,7 @@ class BrownfieldCore(BaseModel):
 
 
 class Brownfield(BrownfieldCore):
+    color: BrownfieldColorDial
     original_functional_utilization: str
     utilization: str
     area_size: str

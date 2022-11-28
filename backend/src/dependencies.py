@@ -29,12 +29,12 @@ def get_session():
 def validate_raw_json_new_brownfield(data: str = Form(...)) -> NewBrownfield:
     try:
         new_brownfield = NewBrownfield.parse_raw(data)
+        return new_brownfield
     except ValidationError as e:
         raise HTTPException(
             detail=jsonable_encoder(e.errors()),
             status_code=status.HTTP_400_BAD_REQUEST,
         )
-    return new_brownfield
 
 
 ### AUTH

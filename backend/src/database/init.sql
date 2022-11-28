@@ -4,6 +4,9 @@ CREATE SCHEMA IF NOT EXISTS brownfields;
 CREATE SCHEMA IF NOT EXISTS auth;
 --TABLE INIT VALUES
 --BROWNFIELD LOOKUPS
+INSERT INTO brownfields.colors(name, hex_value)
+values ('hnedá', '#964B00'),
+    ('červená', '#eb4034');
 INSERT INTO brownfields.ownership_types(value)
 values ('Štátne'),
     ('Obecné'),
@@ -106,8 +109,7 @@ INSERT INTO auth.role_permissions(role_id, permission_id) (
         from auth.roles as roles
             cross join auth.permissions as permissions
         where roles.name = 'admin'
-    )
---Insert clerk permissions
+    ) --Insert clerk permissions
 INSERT INTO auth.role_permissions(role_id, permission_id) (
         select roles.id as role_id,
             permissions.id as permission_id

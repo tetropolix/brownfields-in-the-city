@@ -6,6 +6,7 @@ from pydantic_schemas.brownfield_schemas import (
     BrownfieldsFilters,
     BrownfieldsDials,
     AvailableBrownfieldsFilters,
+    BrownfieldColorDial,
 )
 from sqlalchemy import select, text, func
 from database.brownfield_models import Brownfield
@@ -26,11 +27,12 @@ from database.brownfield_models import (
     Revitalization,
     Settlement,
     Utilization,
+    Color,
 )
 from .crud_utils import assign_filters_bf_query, get_static_image_paths_bf
 
 
-def get_union_lookup_values(session: Session):
+def get_brownfields_dials(sess: Session) -> BrownfieldsDials:
     column_alias = "table_name"
     tables = [
         OwnershipType,
@@ -68,11 +70,7 @@ def get_union_lookup_values(session: Session):
     ).format(column_alias=column_alias)
     keys = ["t" + str(val) for val in range(0, len(tables))]
     dynamic_values = dict(zip(keys, table_names))
-    return session.execute(text(stmt), dynamic_values)
-
-
-def get_form_fields(sess: Session) -> BrownfieldsDials:
-    result = get_union_lookup_values(sess)
+    result = sess.execute(text(stmt), dynamic_values)
     form_fields = {}
     for row in result:
         row = dict(row)
@@ -80,12 +78,21 @@ def get_form_fields(sess: Session) -> BrownfieldsDials:
         if not form_fields.get(row_table_name):
             form_fields[row_table_name] = {}
         form_fields[row_table_name][row["id"]] = row["value"]
-    return BrownfieldsDials(**form_fields)
+    # get brownfield colors separately, as they are in separe "format"
+    colors = sess.execute(select(Color))
+    colors_list = [
+        BrownfieldColorDial(
+            id=row.Color.id, name=row.Color.name, hex_value=row.Color.hex_value
+        )
+        for row in colors
+    ]
+
+    return BrownfieldsDials(**form_fields, colors=colors_list)
 
 
 # Very poor approach of querying min/max values - TODO better approach
 def get_available_bf_filters(sess: Session) -> AvailableBrownfieldsFilters:
-    bf_dials = get_form_fields(sess)
+    bf_dials = get_brownfields_dials(sess)
     max_values = {
         "area_ha_max": sess.query(func.max(Brownfield.area_ha)).scalar(),
         "area_ha_min": sess.query(func.min(Brownfield.area_ha)).scalar(),
@@ -114,6 +121,9 @@ def query_brownfield(bf_id: int, sess: Session) -> BrownfieldSchema | None:
     urls = get_static_image_paths_bf(res.image_directory_uuid)  # type: ignore
     return BrownfieldSchema(
         id=res.id,  # type: ignore
+        color=BrownfieldColorDial(
+            id=res.color.id, name=res.color.name, hex_value=res.color.hex_value
+        ),
         street=res.street,  # type: ignore
         area_ha=res.area_ha,  # type: ignore
         mapping_year=res.mapping_year,  # type: ignore
