@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import BaseModel
 
 
@@ -22,6 +23,30 @@ class BrownfieldsDials(BaseModel):
     revitalizations: dict[int, str]
     economic_potentials: dict[int, str] | None  # TO DO
     environmental_burden_inclusions: dict[int, str] | None  # TO DO
+
+
+class DialByKey(BaseModel):
+    key: int
+    dial: Literal[
+        "colors",
+        "ownership_types",
+        "original_functional_utilizations",
+        "utilizations",
+        "area_sizes",
+        "locations",
+        "degradation_levels",
+        "residentional_area_categories",
+        "settlements",
+        "infrastructure_availabilities",
+        "natural_and_architectural_values",
+        "revitalizations",
+        "economic_potentials",
+        "environmental_burden_inclusions",
+    ]
+
+
+class BrownfieldsDialsByKey(BaseModel):
+    dials_by_key: list[DialByKey]
 
 
 class BrownfieldsFilters(BaseModel):

@@ -1,6 +1,9 @@
 from pathlib import Path
+from typing import Any
 from pydantic_schemas.brownfield_schemas import (
     BrownfieldsFilters,
+    BrownfieldsDialsByKey,
+    DialByKey,
 )
 from sqlalchemy.orm import Query
 from database.brownfield_models import Brownfield
@@ -26,6 +29,31 @@ from database.brownfield_models import (
 )
 
 # crud utils
+BROWNFIELDS_DIALS_BY_KEY: dict[int, Any] = {
+    1: AreaSize,
+    2: DegradationLevel,
+    3: EconomicPotential,
+    4: EnvironmentalBurdenInclusion,
+    5: InfrastructureAvailability,
+    6: Location,
+    7: NaturalAndArchitecturalValue,
+    8: OriginalFunctionalUtilization,
+    9: OwnershipType,
+    10: ResidentionalAreaCategory,
+    11: Revitalization,
+    12: Settlement,
+    13: Utilization,
+    14: Color,
+}
+
+
+def get_bf_dials_by_key() -> BrownfieldsDialsByKey:
+    dials = []
+    for key, val in BROWNFIELDS_DIALS_BY_KEY.items():
+        print("HERERER \n\n\n")
+        print(val.__table__.name)
+        dials.append(DialByKey(key=key, dial=val.__table__.name))
+    return BrownfieldsDialsByKey(dials_by_key=dials)
 
 
 def get_static_image_paths_bf(image_directory_uuid: str) -> list[str]:

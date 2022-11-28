@@ -1,6 +1,7 @@
 from pathlib import Path
 from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, Request
 from sqlalchemy.orm import Session
+from crud.crud_utils import get_bf_dials_by_key
 from custom_exceptions import EntityWasNotStored
 from database.brownfield_models import Brownfield as BrownfieldModel
 from pydantic_schemas.brownfield_schemas import (
@@ -11,6 +12,7 @@ from pydantic_schemas.brownfield_schemas import (
     Brownfield,
     BrownfieldCore,
     BrownfieldsFilters,
+    BrownfieldsDialsByKey,
 )
 from crud.brownfields_cruds import (
     get_brownfields_dials,
@@ -133,3 +135,13 @@ def get_brownfields_with_filters(
 @router.get("/filters", response_model=AvailableBrownfieldsFilters)
 def get_filters(sess: Session = Depends(get_session)):
     return get_available_bf_filters(sess)
+
+
+@router.get("/dials-by-key", response_model=BrownfieldsDialsByKey)
+def get_dials_by_key():
+    return get_bf_dials_by_key()
+
+
+@router.get("/update_dial/{key}", status_code=status.HTTP_202_ACCEPTED)
+def update_dial(key: int):
+    pass
