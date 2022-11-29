@@ -1,7 +1,8 @@
 from pathlib import Path
-from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, Request
+from fastapi import APIRouter, Depends, status, HTTPException, UploadFile
 from sqlalchemy.orm import Session
-from crud.crud_utils import get_bf_dials_by_key
+from sqlalchemy.exc import MultipleResultsFound, IntegrityError
+from crud.crud_utils import get_bf_dials_by_key, get_dial_by_key
 from custom_exceptions import EntityWasNotStored
 from database.brownfield_models import Brownfield as BrownfieldModel
 from pydantic_schemas.brownfield_schemas import (
@@ -13,14 +14,17 @@ from pydantic_schemas.brownfield_schemas import (
     BrownfieldCore,
     BrownfieldsFilters,
     BrownfieldsDialsByKey,
+    BrownfieldDialUpdate,
 )
 from crud.brownfields_cruds import (
+    create_new_dial_value,
     get_brownfields_dials,
     insert_new_brownfield,
     query_brownfield,
     query_brownfields,
     get_brownfield_cores,
     get_available_bf_filters,
+    update_existing_dial_value,
 )
 from dependencies import get_session, validate_raw_json_new_brownfield
 from .routers_utils import (
@@ -142,6 +146,24 @@ def get_dials_by_key():
     return get_bf_dials_by_key()
 
 
-@router.get("/update_dial/{key}", status_code=status.HTTP_202_ACCEPTED)
-def update_dial(key: int):
-    pass
+@router.post("/update-dial", status_code=status.HTTP_202_ACCEPTED)
+def update_dial(
+    to_update: BrownfieldDialUpdate,
+    sess: Session = Depends(get_session),
+):
+    dial = get_dial_by_key(to_update)
+    if dial is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found"
+        )
+    try:
+        if to_update.dial_value_id is None:  # create new dial value
+            create_new_dial_value(dial, to_update, sess)
+        else:
+            update_existing_dial_value(dial, to_update, sess)
+    except MultipleResultsFound:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not valid values"
+        )

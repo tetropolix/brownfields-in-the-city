@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator, validator
 
 
 class BrownfieldColorDial(BaseModel):
@@ -47,6 +47,49 @@ class DialByKey(BaseModel):
 
 class BrownfieldsDialsByKey(BaseModel):
     dials_by_key: list[DialByKey]
+
+
+class BrownfieldColorDialUpdate(BaseModel):
+    name: str | None
+    hex_value: str | None
+
+    @validator("hex_value")
+    def at_least_one(cls, v, values):
+        if v is None and values["name"] is None:
+            raise ValueError(
+                "At least one from [name,hex_value] for color update must be provided"
+            )
+        return v
+
+
+class BrownfieldDialUpdate(BaseModel):
+    dial_key: int
+    dial_value_id: int | None
+    value: str | None
+    color_update: BrownfieldColorDialUpdate | None
+
+    @root_validator(pre=True)
+    def update_or_new_value(cls, values):
+        dial_value_id = values.get("dial_value_id")
+        value = values.get("value")
+        color_update = values.get("color_update")
+        if dial_value_id is None and (value is None and color_update is None):
+            raise ValueError(
+                "If dial_value_id is not defined, one of value / color_update must be defined"
+            )
+        return values
+
+    @root_validator(pre=True)
+    def only_value_or_color_update(cls, values):
+        value = values.get("value")
+        color_update = values.get("color_update")
+        if (value is not None and color_update is not None) or (
+            value is None and color_update is None
+        ):
+            raise ValueError(
+                "One and only one of value / color_update must be provided"
+            )
+        return values
 
 
 class BrownfieldsFilters(BaseModel):

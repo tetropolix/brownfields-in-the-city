@@ -1,3 +1,4 @@
+from typing import Any
 from sqlalchemy.orm import Session
 from pydantic_schemas.brownfield_schemas import (
     NewBrownfield,
@@ -7,6 +8,7 @@ from pydantic_schemas.brownfield_schemas import (
     BrownfieldsDials,
     AvailableBrownfieldsFilters,
     BrownfieldColorDial,
+    BrownfieldDialUpdate,
 )
 from sqlalchemy import select, text, func
 from database.brownfield_models import Brownfield
@@ -185,3 +187,35 @@ def get_brownfield_cores(brownfields: list[Brownfield]) -> list[BrownfieldCore]:
             )
         )
     return bf_cores
+
+
+def update_existing_dial_value(
+    dial: Any, to_update: BrownfieldDialUpdate, sess: Session
+):
+    dial = sess.execute(
+        select(dial).where(dial.id == to_update.dial_value_id)
+    ).scalar_one()
+    if to_update.color_update is not None:  # update color
+        color_updt = to_update.color_update
+        if color_updt.hex_value:
+            dial.hex_value = color_updt.hex_value
+        if color_updt.name:
+            dial.name = color_updt.name
+    else:  # update other dials
+        dial.value = to_update.value
+    sess.add(dial)
+    sess.commit()
+
+
+def create_new_dial_value(dial: Any, to_update: BrownfieldDialUpdate, sess: Session):
+    new_dial = dial()
+    if to_update.color_update is not None:  # create new color
+        color_updt = to_update.color_update
+        if color_updt.hex_value:
+            new_dial.hex_value = color_updt.hex_value
+        if color_updt.name:
+            new_dial.name = color_updt.name
+    else:  # create new value in other dials
+        new_dial.value = to_update.value
+    sess.add(new_dial)
+    sess.commit()

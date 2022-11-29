@@ -4,6 +4,7 @@ from pydantic_schemas.brownfield_schemas import (
     BrownfieldsFilters,
     BrownfieldsDialsByKey,
     DialByKey,
+    BrownfieldDialUpdate,
 )
 from sqlalchemy.orm import Query
 from database.brownfield_models import Brownfield
@@ -47,11 +48,13 @@ BROWNFIELDS_DIALS_BY_KEY: dict[int, Any] = {
 }
 
 
+def get_dial_by_key(to_update: BrownfieldDialUpdate) -> Any | None:
+    return BROWNFIELDS_DIALS_BY_KEY.get(to_update.dial_key)
+
+
 def get_bf_dials_by_key() -> BrownfieldsDialsByKey:
     dials = []
     for key, val in BROWNFIELDS_DIALS_BY_KEY.items():
-        print("HERERER \n\n\n")
-        print(val.__table__.name)
         dials.append(DialByKey(key=key, dial=val.__table__.name))
     return BrownfieldsDialsByKey(dials_by_key=dials)
 
