@@ -26,12 +26,16 @@ async def login(
 ):
     """Route which grants access token to the client(browser) - used as login mechanism"""
     user_in_db = get_user_by_email(form_data.username, sess)
-    print(user_in_db)
     if not authenticate_user(form_data.password, user_in_db) or user_in_db is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not user_in_db.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User is not active",
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     generated_user_session = token_urlsafe(32)
@@ -40,6 +44,7 @@ async def login(
             "sub": generated_user_session,
             "roles": user_in_db.permissions,
             "admin": user_in_db.is_admin,
+            "active": user_in_db.is_active,
         },
         expires_delta=access_token_expires,
     )

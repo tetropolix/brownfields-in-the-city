@@ -26,7 +26,7 @@ def get_user_by_email(email: str, sess: Session) -> LoginUser | None:
         raise HTTPException(status_code=400)
     stmt = (
         """
-    select perms.name, users.hashed_password from auth.users as users
+    select perms.name, users.hashed_password, users.is_admin , users.is_active from auth.users as users
     join auth.user_roles as ur on users.id = ur.user_id
     join auth.roles as roles on roles.id = ur.role_id
     join auth.role_permissions as rp on roles.id = rp.role_id
@@ -45,10 +45,12 @@ def get_user_by_email(email: str, sess: Session) -> LoginUser | None:
         raise HTTPException(500)
     user_hashed_pass = res[0].hashed_password  # type: ignore -- ignores type hinting for Row namedtuple
     is_admin = res[0].is_admin  # type: ignore -- ignores type hinting for Row namedtuple
+    is_active = res[0].is_active  # type: ignore -- ignores type hinting for Row namedtuple
     return LoginUser(
         hashed_password=user_hashed_pass,
         permissions=user_permissions,
         is_admin=is_admin,
+        is_active=is_active,
     )
 
 

@@ -31,6 +31,7 @@ class UserWithPermissions(User):
 # Used when attempting to log in and for initial JWT creation
 class LoginUser(BaseModel):
     is_admin: bool
+    is_active: bool
     hashed_password: str
     permissions: list[int]
 
