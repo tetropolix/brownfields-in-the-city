@@ -52,9 +52,12 @@ async def get_auth_token_claims(token: str = Depends(oauth2_scheme)) -> TokenDat
         payload = decode_jwt(token)
         user_session: str = str(payload.get("sub"))
         permissions = payload.get("roles")
-        if user_session is None or permissions is None:
+        admin = payload.get("admin")
+        if user_session is None or permissions is None or admin is None:
             raise credentials_exception
-        return TokenData(user_session=user_session, permissions=permissions)
+        return TokenData(
+            user_session=user_session, permissions=permissions, admin=admin
+        )
     except JWTError:
         raise credentials_exception
 

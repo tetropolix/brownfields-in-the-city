@@ -44,7 +44,12 @@ def get_user_by_email(email: str, sess: Session) -> LoginUser | None:
     except UserPermissionException:
         raise HTTPException(500)
     user_hashed_pass = res[0].hashed_password  # type: ignore -- ignores type hinting for Row namedtuple
-    return LoginUser(hashed_password=user_hashed_pass, permissions=user_permissions)
+    is_admin = res[0].is_admin  # type: ignore -- ignores type hinting for Row namedtuple
+    return LoginUser(
+        hashed_password=user_hashed_pass,
+        permissions=user_permissions,
+        is_admin=is_admin,
+    )
 
 
 def get_user_by_session(user_session: str, sess: Session) -> UserInDB | None:

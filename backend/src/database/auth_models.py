@@ -19,6 +19,7 @@ class User(Base):
     email = Column(String(256),index=True,nullable=False,unique=True)
     phone = Column(String(32),nullable=False)
     hashed_password = Column(String(256),nullable=False)
+    is_admin = Column(Boolean,nullable=False,default=False)
     is_active = Column(Boolean,nullable=False,default = False)
     roles = relationship("Role",secondary=user_roles)
 
