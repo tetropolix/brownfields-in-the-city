@@ -1,6 +1,7 @@
 from datetime import timedelta
 from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
+from custom_exceptions import UserPermissionException
 from dependencies import get_current_active_user
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -15,6 +16,7 @@ from crud.auth_cruds import (
 from .routers_utils import create_access_token, get_password_hash, authenticate_user
 from globals import ACCESS_TOKEN_EXPIRE_MINUTES, PERMISSIONS
 from secrets import token_urlsafe
+from email_validator import validate_email, EmailNotValidError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -25,7 +27,10 @@ async def login(
     sess: Session = Depends(get_session),
 ):
     """Route which grants access token to the client(browser) - used as login mechanism"""
-    user_in_db = get_user_by_email(form_data.username, sess)
+    try:
+     user_in_db = get_user_by_email(form_data.username, sess)
+    except UserPermissionException:
+        raise HTTPException(500)
     if not authenticate_user(form_data.password, user_in_db) or user_in_db is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -66,6 +71,10 @@ async def logout(
 def register_user(new_user: NewUser, sess: Session = Depends(get_session)):
     """New user registration"""
     new_user.password = get_password_hash(new_user.password)
+    try:
+        validate_email(new_user.email)
+    except EmailNotValidError:
+        raise HTTPException(status_code=400,detail="Not valid email")
     try:
         id = create_new_user(new_user, sess)
     except IntegrityError as e:

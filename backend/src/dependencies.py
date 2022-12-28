@@ -69,7 +69,7 @@ async def get_current_active_user(
     user_in_db = get_user_by_session(token_data.user_session, sess)
     if user_in_db is None:
         raise HTTPException(status_code=400, detail="Invalid token")
-    if user_in_db.is_active:
+    if not user_in_db.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return UserWithPermissions(**user_in_db.dict(), permissions=token_data.permissions)
 

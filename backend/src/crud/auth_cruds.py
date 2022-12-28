@@ -20,10 +20,11 @@ def create_new_user(new_user: NewUser, sess: Session) -> None:
 
 
 def get_user_by_email(email: str, sess: Session) -> LoginUser | None:
+    #validate email inptu from user
     try:
         validate_email(email)
     except EmailNotValidError:
-        raise HTTPException(status_code=400)
+        return None
     stmt = (
         """
     select perms.name, users.hashed_password, users.is_admin , users.is_active from auth.users as users
@@ -38,11 +39,10 @@ def get_user_by_email(email: str, sess: Session) -> LoginUser | None:
     res = sess.execute(text(stmt)).all()
     if res == []:
         return None
-    try:
-        user_permissions = [t.name for t in res]  # type: ignore -- ignores type hinting for Row namedtuple
-        user_permissions = PERMISSIONS.get_perms_numbers(user_permissions)
-    except UserPermissionException:
-        raise HTTPException(500)
+    user_permissions = [t.name for t in res]  # type: ignore -- ignores type hinting for Row namedtuple
+    #Throws UserPermissionException when permission not found for some reason
+    user_permissions = PERMISSIONS.get_perms_numbers(user_permissions)
+    
     user_hashed_pass = res[0].hashed_password  # type: ignore -- ignores type hinting for Row namedtuple
     is_admin = res[0].is_admin  # type: ignore -- ignores type hinting for Row namedtuple
     is_active = res[0].is_active  # type: ignore -- ignores type hinting for Row namedtuple
