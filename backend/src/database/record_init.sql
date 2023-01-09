@@ -109,7 +109,7 @@ INSERT INTO auth.role_permissions(role_id, permission_id) (
         from auth.roles as roles
             cross join auth.permissions as permissions
         where roles.name = 'admin'
-    ) --Insert clerk permissions
+    ); --Insert clerk permissions
 INSERT INTO auth.role_permissions(role_id, permission_id) (
         select roles.id as role_id,
             permissions.id as permission_id
@@ -118,8 +118,8 @@ INSERT INTO auth.role_permissions(role_id, permission_id) (
         where roles.name = 'clerk'
             and permissions.name in (
                 'brownfields:create',
-                'brownfields:read',
+                'brownfields:read', 
                 'brownfields:update',
                 'brownfields:delete'
             )
-    )
+    );

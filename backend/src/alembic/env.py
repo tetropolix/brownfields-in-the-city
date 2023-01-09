@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+from pathlib import Path
 from venv import create
 
 from sqlalchemy import create_engine
@@ -9,11 +10,16 @@ from alembic import context
 from dotenv import load_dotenv
 import os
 
+def get_database_url() -> str:
+    env_file = context.get_x_argument(as_dictionary=True).get('env')
+    env_file = None if None else Path('../',env_file)
+    load_dotenv(env_file)
 
-load_dotenv()
+    SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+    assert SQLALCHEMY_DATABASE_URL , "Database URL must be specified in order to perform migration"
+    return SQLALCHEMY_DATABASE_URL
 
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
-assert SQLALCHEMY_DATABASE_URL , "Database URL must be specified in order to perform migration"
+
 
 
 # this is the Alembic Config object, which provides
@@ -37,7 +43,6 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -50,7 +55,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = SQLALCHEMY_DATABASE_URL
+    url = get_database_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -63,7 +68,6 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
@@ -72,7 +76,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = create_engine(
-        SQLALCHEMY_DATABASE_URL
+        get_database_url()
     )
 
     with connectable.connect() as connection:

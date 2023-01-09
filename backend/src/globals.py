@@ -1,9 +1,16 @@
+import sys
 from dotenv import load_dotenv
 import os
 from enum import Enum
 from custom_exceptions import UserPermissionException
 
-load_dotenv()
+env_file_path = os.getenv("BROWNFIELDS_ENV_FILE")
+
+## load .env file based on command line option --env_file, if ommited load env variables from actual envirnoment
+if env_file_path is not None:
+    load_dotenv(env_file_path)
+else:
+    load_dotenv()
 
 MAX_IMAGE_UPLOAD_SIZE = 2097152  # in bytes = 2MB
 ALGORITHM = "HS256"
@@ -25,11 +32,14 @@ for key, val in env_vars.items():
 
 
 class EnvVars:
-    SQLALCHEMY_DATABASE_URL: str = env_vars.get("SQLALCHEMY_DATABASE_URL")  # type: ignore
     SECRET_KEY: str = env_vars.get("SECRET_KEY")  # type: ignore
-    BROWNFIELDS_STATIC_DIR: str = env_vars.get("BROWNFIELDS_STATIC_DIR")  # type: ignore
-    BROWNFIELDS_IMAGES_DIR: str = env_vars.get("BROWNFIELDS_IMAGES_DIR")  # type: ignore
-    BROWFIELDS_STATIC_PATH_IMAGES: str = env_vars.get("BROWFIELDS_STATIC_PATH_IMAGES")  # type: ignore
+    SQLALCHEMY_DATABASE_URL: str = env_vars.get("SQLALCHEMY_DATABASE_URL")  # type: ignore
+    #DIRECTORY USED AS MOUNTING POINT FOR STATIC FILES -> {STATIC_DIR}
+    BROWNFIELDS_STATIC_DIR: str = env_vars.get("BROWNFIELDS_STATIC_DIR")  # type: ignore 
+    #DIRECTORY INSIDE STATIC_DIR WHICH SHOULD BE USED FOR STORING IMAGES -> {STATIC_DIR/IMAGES_DIR}
+    BROWNFIELDS_IMAGES_DIR: str = env_vars.get("BROWNFIELDS_IMAGES_DIR")  # type: ignore 
+    #PART WHICH WILL BE ATTACHED AFTER /static URL PATH FOR OBTAINING, SPECIFIC DIRECTORY FOR STORING IMAGES -> {IMAGES_DIR}
+    BROWFIELDS_STATIC_PATH_IMAGES: str = env_vars.get("BROWFIELDS_STATIC_PATH_IMAGES")  # type: ignore 
 
 
 # Check if env paths are exisiting directories

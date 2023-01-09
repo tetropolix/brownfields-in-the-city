@@ -1,1 +1,13 @@
-Generic single-database configuration.
+We can use the alembic revision command in conjunction with the --autogenerate option. 
+
+<code>$ alembic revision --autogenerate -m "Added new table"<code>
+
+Running the migration
+
+<code>$ alembic upgrade head<code>
+
+‘stamp’ the revision table with the given revision; don’t run any migrations.
+
+<code>$ alembic stamp {head}<code>
+
+**Use -x option after alembic command for specifiyng .env file path relative to src directory if any -> alembic -x env=../.env ...**

@@ -10,7 +10,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import false
 from sqlalchemy.orm import relationship
-from .database import Base
+from . import Base
 
 
 user_roles = Table(

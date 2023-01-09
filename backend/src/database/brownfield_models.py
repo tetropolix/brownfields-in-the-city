@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey, Integer, Column, String, Float, Numeric
 from sqlalchemy.orm import relationship
-from .database import Base
+from . import Base
 
 
 class Brownfield(Base):

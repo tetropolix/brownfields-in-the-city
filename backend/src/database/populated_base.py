@@ -2,4 +2,4 @@
 
 from . import brownfield_models
 from . import auth_models
-from .database import Base
+from . import Base

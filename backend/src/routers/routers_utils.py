@@ -16,7 +16,7 @@ def new_brownfield_image_upload(
 ) -> None:
     # check if all uploaded files are valid content_type and max of 8 files were uploaded
     valid_mime_types = all(
-        [file.content_type in ("image/jpeg", "image/png") for file in files]
+        [file.content_type in ("image/jpeg", "image/png","image/jpg") for file in files]
     )
     if not valid_mime_types:
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)

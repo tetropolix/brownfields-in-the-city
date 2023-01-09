@@ -1,0 +1,9 @@
+Server start:
+    Execute following bash script from backend dir **./start-server.sh**
+    
+    Options: 
+        -h {host} Bind socket to this host.
+        -p {port} Bind socket to this port.
+        -e {env_file_path} Specify file path related to src dir for .env file for configuration, if ommited configuration will be searched in actual environment
+
+    Example: ./start-server.sh -h 0.0.0.0 -p 8000 -e .env_file
