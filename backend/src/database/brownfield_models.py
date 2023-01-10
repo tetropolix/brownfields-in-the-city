@@ -1,12 +1,13 @@
 from sqlalchemy import ForeignKey, Integer, Column, String, Float, Numeric
 from sqlalchemy.orm import relationship
+from geoalchemy2 import Geometry
 from . import Base
-
 
 class Brownfield(Base):
     __tablename__ = "brownfields"
     __table_args__ = {"schema": "brownfields"}
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)  
+    polygon = Column(Geometry(geometry_type="POLYGON"))
     image_directory_uuid = Column(String(128), index=True, nullable=False)
     street = Column(String(256), nullable=False)
     area_ha = Column(Numeric(12, 4), nullable=False)

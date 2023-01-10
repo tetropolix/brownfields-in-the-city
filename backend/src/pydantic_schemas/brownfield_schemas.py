@@ -148,6 +148,7 @@ class NewBrownfield(BaseModel):
     revitalization_id: int
     economic_potential_id: int | None  # TO DO
     environmental_burden_inclusion_id: int | None  # TO DO
+    polygon: list[tuple[float,float]] | None
 
 
 class BrownfieldCore(BaseModel):
@@ -174,4 +175,5 @@ class Brownfield(BrownfieldCore):
     revitalization: str
     economic_potential: str | None  # TO DO
     environmental_burden_inclusion: str | None  # TO DO
-    image_urls: list[str]
+    image_urls: list[str] 
+    polygon: list[tuple[float,float]] | None

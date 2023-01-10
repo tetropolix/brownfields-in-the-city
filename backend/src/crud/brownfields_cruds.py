@@ -1,4 +1,7 @@
 from typing import Any
+
+from geoalchemy2.functions import ST_AsGeoJSON
+from geoalchemy2.shape import to_shape
 from sqlalchemy.orm import Session
 from pydantic_schemas.brownfield_schemas import (
     NewBrownfield,
@@ -109,7 +112,17 @@ def get_available_bf_filters(sess: Session) -> AvailableBrownfieldsFilters:
 def insert_new_brownfield(
     bf: NewBrownfield, image_dir_uuid: str, sess: Session
 ) -> int | None:
-    new_brownfield = Brownfield(**bf.dict(), image_directory_uuid=image_dir_uuid)
+    bf_dict = bf.dict()
+    if bf.polygon is not None:
+        # creation of polygon format for insertion into postgres DB according to geoalchemy2 docs - ex.: 'POLYGON((0 0,1 0,1 1,0 1,0 0))' // better option is to use shapely -> TODO
+        polygon_tuples = [
+            str(coord_tuple[0]) + " " + str(coord_tuple[1])
+            for coord_tuple in bf.polygon
+        ]
+        polygon_format = "POLYGON((" + (",").join(polygon_tuples) + "))"
+        bf_dict["polygon"] = polygon_format
+
+    new_brownfield = Brownfield(**bf_dict, image_directory_uuid=image_dir_uuid)
     sess.add(new_brownfield)
     sess.commit()
     return new_brownfield.id  # type: ignore
@@ -141,9 +154,12 @@ def query_brownfield(bf_id: int, sess: Session) -> BrownfieldSchema | None:
         infrastructure_availability=res.infrastructure_availability.value,
         natural_and_architectural_value=res.natural_and_architectural_value.value,
         revitalization=res.revitalization.value,
-        economic_potential=res.economic_potential,  # type: ignore # TODO return value of CISELNIK
-        environmental_burden_inclusion=res.environmental_burden_inclusion,  # type: ignore # TODO return value of CISELNIK
+        economic_potential=res.economic_potential,  # type: ignore # TODO return value of DIAL
+        environmental_burden_inclusion=res.environmental_burden_inclusion,  # type: ignore # TODO return value of DIAL
         image_urls=urls,
+        polygon=list(to_shape(res.polygon).exterior.coords)  # type: ignore
+        if res.polygon is not None
+        else None,
     )
 
 
