@@ -1,5 +1,7 @@
+import csv
+import io
 from pathlib import Path
-from fastapi import APIRouter, Depends, status, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, Response
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import MultipleResultsFound, IntegrityError
 from crud.crud_utils import get_bf_dials_by_key, get_dial_by_key
@@ -7,6 +9,7 @@ from custom_exceptions import EntityWasNotStored
 from database.brownfield_models import Brownfield as BrownfieldModel
 from pydantic_schemas.brownfield_schemas import (
     AvailableBrownfieldsFilters,
+    BrownfieldExport,
     BrownfieldID,
     BrownfieldsDials,
     NewBrownfield,
@@ -167,3 +170,31 @@ def update_dial(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Not valid values"
         )
+
+
+@router.get("/export/{bf_id}", response_class=Response)
+def export_brownfield(bf_id: int, sess: Session = Depends(get_session)):
+    """
+    Exports brownfield specified by id in CSV format
+    """
+    bf = query_brownfield(bf_id, sess)
+    if bf is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found"
+        )
+    bf = BrownfieldExport(**bf.dict(),WKT=bf.polygon)
+    headers = list(bf.dict().keys())
+    csv_file = io.StringIO()
+    writer = csv.DictWriter(csv_file, fieldnames=headers)
+    writer.writeheader()
+    writer.writerow(bf.dict())
+    csv_file.seek(0)
+    content = csv_file.read()
+    csv_file.close()
+    return Response(
+        content=content,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": 'attachment; filename="brownfield_%s.csv"' % bf_id
+        },
+    )

@@ -1,4 +1,6 @@
 from typing import Literal
+
+import shapely
 from pydantic import BaseModel, root_validator, validator
 
 
@@ -177,3 +179,31 @@ class Brownfield(BrownfieldCore):
     environmental_burden_inclusion: str | None  # TO DO
     image_urls: list[str] 
     polygon: list[tuple[float,float]] | None
+
+class BrownfieldExport(BaseModel):
+    street: str
+    area_ha: float
+    mapping_year: int
+    altitude: float
+    ownership_type: str
+    original_functional_utilization: str
+    utilization: str
+    area_size: str
+    location: str
+    degradation_level: str
+    residentional_area_category: str
+    settlement: str
+    infrastructure_availability: str
+    natural_and_architectural_value: str
+    revitalization: str
+    economic_potential: str | None  # TO DO
+    environmental_burden_inclusion: str | None  # TO DO
+    WKT: list[tuple[float,float]] | None
+
+    #"validates" / recreates list of tuple to the string which is expected in google MyMaps from csv file
+    @validator('WKT')
+    def static_mage(cls, wkt):
+        if(wkt ==None):
+            return None
+        else:
+            return shapely.Polygon(wkt).wkt

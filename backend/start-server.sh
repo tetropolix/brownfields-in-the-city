@@ -1,6 +1,6 @@
 #!/bin/sh
 usage() {                                 # Function: Print a help message.
-  echo "Usage: $0 -h HOST -p PORT [ -e ENV FILE PATH relative to src dir ]" 1>&2 
+  echo "Usage: $0 -h HOST -p PORT [ -e ENV FILE PATH relative to src dir ] [-r RELOAD]" 1>&2 
 }
 
 exit_abnormal() {                         # Function: Exit with error.
@@ -10,12 +10,14 @@ exit_abnormal() {                         # Function: Exit with error.
 
 host="127.0.0.1"
 port="8000"
-while getopts h:p:e: flag
+reload=0
+while getopts h:p:e:r: flag
 do
     case "${flag}" in
         h) host=${OPTARG};;
         p) port=${OPTARG};;
         e) env_file=${OPTARG};;
+        r) reload=${OPTARG};;
         *)                                    # If unknown (any other) option:
             exit_abnormal                     # Exit abnormally.
             ;;
@@ -24,4 +26,9 @@ done
 
 
 export BROWNFIELDS_ENV_FILE=$env_file
-cd src && uvicorn main:app --host $host --port $port
+if [$reload == 0]
+then
+  cd src && uvicorn main:app --host $host --port $port
+else
+  cd src && uvicorn main:app --host $host --port $port --reload
+fi

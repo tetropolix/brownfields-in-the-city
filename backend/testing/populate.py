@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import random
+import sys
 import time
 import requests  # type: ignore
 from urllib3 import encode_multipart_formdata
@@ -65,8 +66,13 @@ def insert_brownfield(api_url, data: str, files: list):
 
 
 if __name__ == "__main__":
+    max_insert = None
+    if(len(sys.argv) > 1):
+        max_insert = int(sys.argv[1])
     files = read_files()
-    for row in load_mockups():
+    for i,row in enumerate(load_mockups()):
+        if(max_insert is not None and max_insert == i):
+            break
         response = insert_brownfield(
             api_url,
             json.dumps(row),
@@ -76,4 +82,4 @@ if __name__ == "__main__":
             exit(1)
         print("OK - " + str(response.json()))
         time.sleep(time_between_requests)
-        exit(0)
+        
