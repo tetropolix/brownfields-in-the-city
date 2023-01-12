@@ -1,5 +1,7 @@
 from __future__ import annotations
+import csv
 from datetime import timedelta, datetime
+import io
 from fastapi import status, HTTPException, UploadFile, Query
 from globals import MAX_IMAGE_UPLOAD_SIZE
 from pathlib import Path
@@ -9,14 +11,18 @@ from passlib.context import CryptContext
 from globals import EnvVars, ALGORITHM
 from pydantic_schemas.auth_schemas import LoginUser
 
-#Brownfields
+# Brownfields
+
 
 def new_brownfield_image_upload(
     files: list[UploadFile], bf_images_dir_path: Path
 ) -> None:
     # check if all uploaded files are valid content_type and max of 8 files were uploaded
     valid_mime_types = all(
-        [file.content_type in ("image/jpeg", "image/png","image/jpg") for file in files]
+        [
+            file.content_type in ("image/jpeg", "image/png", "image/jpg")
+            for file in files
+        ]
     )
     if not valid_mime_types:
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
@@ -44,6 +50,17 @@ def clear_images_dir(dir_path: Path):
 
 def create_bf_images_dir(dir_path: Path):
     dir_path.mkdir(exist_ok=False)
+
+
+def get_csv_string(headers: list[str], rows: list[dict]) -> str:
+    csv_file = io.StringIO()
+    writer = csv.DictWriter(csv_file, fieldnames=headers)
+    writer.writeheader()
+    writer.writerows(rows)
+    csv_file.seek(0)
+    content = csv_file.read()
+    csv_file.close()
+    return content
 
 
 # auth

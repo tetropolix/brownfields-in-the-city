@@ -127,40 +127,42 @@ def insert_new_brownfield(
     sess.commit()
     return new_brownfield.id  # type: ignore
 
+def get_brownfield_schema__from_db_object(bf : Brownfield):
+    urls = get_static_image_paths_bf(bf.image_directory_uuid)  # type: ignore
+    return BrownfieldSchema(
+        id=bf.id,  # type: ignore
+        color=BrownfieldColorDial(
+            id=bf.color.id, name=bf.color.name, hex_value=bf.color.hex_value
+        ),
+        street=bf.street,  # type: ignore
+        area_ha=bf.area_ha,  # type: ignore
+        mapping_year=bf.mapping_year,  # type: ignore
+        altitude=bf.altitude,  # type: ignore
+        ownership_type=bf.ownership_type.value,
+        original_functional_utilization=bf.original_functional_utilization.value,
+        utilization=bf.utilization.value,
+        area_size=bf.area_size.value,
+        location=bf.location.value,
+        degradation_level=bf.degradation_level.value,
+        residentional_area_category=bf.residentional_area_category.value,
+        settlement=bf.settlement.value,
+        infrastructure_availability=bf.infrastructure_availability.value,
+        natural_and_architectural_value=bf.natural_and_architectural_value.value,
+        revitalization=bf.revitalization.value,
+        economic_potential=bf.economic_potential,  # type: ignore # TODO return value of DIAL
+        environmental_burden_inclusion=bf.environmental_burden_inclusion,  # type: ignore # TODO return value of DIAL
+        image_urls=urls,
+        polygon=list(to_shape(bf.polygon).exterior.coords)  # type: ignore
+        if bf.polygon is not None
+        else None,
+    )
 
 def query_brownfield(bf_id: int, sess: Session) -> BrownfieldSchema | None:
     stmt = select(Brownfield).where(Brownfield.id == bf_id)
     res: Brownfield | None = sess.execute(stmt).scalar_one_or_none()
     if res is None:
         return None
-    urls = get_static_image_paths_bf(res.image_directory_uuid)  # type: ignore
-    return BrownfieldSchema(
-        id=res.id,  # type: ignore
-        color=BrownfieldColorDial(
-            id=res.color.id, name=res.color.name, hex_value=res.color.hex_value
-        ),
-        street=res.street,  # type: ignore
-        area_ha=res.area_ha,  # type: ignore
-        mapping_year=res.mapping_year,  # type: ignore
-        altitude=res.altitude,  # type: ignore
-        ownership_type=res.ownership_type.value,
-        original_functional_utilization=res.original_functional_utilization.value,
-        utilization=res.utilization.value,
-        area_size=res.area_size.value,
-        location=res.location.value,
-        degradation_level=res.degradation_level.value,
-        residentional_area_category=res.residentional_area_category.value,
-        settlement=res.settlement.value,
-        infrastructure_availability=res.infrastructure_availability.value,
-        natural_and_architectural_value=res.natural_and_architectural_value.value,
-        revitalization=res.revitalization.value,
-        economic_potential=res.economic_potential,  # type: ignore # TODO return value of DIAL
-        environmental_burden_inclusion=res.environmental_burden_inclusion,  # type: ignore # TODO return value of DIAL
-        image_urls=urls,
-        polygon=list(to_shape(res.polygon).exterior.coords)  # type: ignore
-        if res.polygon is not None
-        else None,
-    )
+    return get_brownfield_schema__from_db_object(res)
 
 
 def query_brownfields(

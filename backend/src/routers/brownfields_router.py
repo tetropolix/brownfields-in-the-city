@@ -1,7 +1,13 @@
-import csv
-import io
 from pathlib import Path
-from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    status,
+    HTTPException,
+    UploadFile,
+    Response,
+    Query,
+)
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import MultipleResultsFound, IntegrityError
 from crud.crud_utils import get_bf_dials_by_key, get_dial_by_key
@@ -21,6 +27,7 @@ from pydantic_schemas.brownfield_schemas import (
 )
 from crud.brownfields_cruds import (
     create_new_dial_value,
+    get_brownfield_schema__from_db_object,
     get_brownfields_dials,
     insert_new_brownfield,
     query_brownfield,
@@ -31,6 +38,7 @@ from crud.brownfields_cruds import (
 )
 from dependencies import get_session, validate_raw_json_new_brownfield
 from .routers_utils import (
+    get_csv_string,
     new_brownfield_image_upload,
     clear_images_dir,
     LimitOffsetParams,
@@ -182,19 +190,48 @@ def export_brownfield(bf_id: int, sess: Session = Depends(get_session)):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found"
         )
-    bf = BrownfieldExport(**bf.dict(),WKT=bf.polygon)
+    bf = BrownfieldExport(**bf.dict(), WKT=bf.polygon)
     headers = list(bf.dict().keys())
-    csv_file = io.StringIO()
-    writer = csv.DictWriter(csv_file, fieldnames=headers)
-    writer.writeheader()
-    writer.writerow(bf.dict())
-    csv_file.seek(0)
-    content = csv_file.read()
-    csv_file.close()
+    content = get_csv_string(headers, [bf.dict()])
     return Response(
         content=content,
         media_type="text/csv",
         headers={
             "Content-Disposition": 'attachment; filename="brownfield_%s.csv"' % bf_id
         },
+    )
+
+
+@router.get("/export", response_class=Response)
+def export_brownfields(ids: list[int] = Query(), sess: Session = Depends(get_session)):
+    """
+    Exports multiple brownfields specified by list of ids in query param in CSV format
+    If no record was found for some of the ids then record for specified id is not included in final csv
+
+    list of ids in query params should be in this format: .../brownfields/export?ids=1&ids=2&ids=11
+
+    If no records are found at all 404 response is raised
+
+    Maximum of ids for one request is 200
+    """
+    if len(ids) > 200:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Too many resources requested",
+        )
+    bfs_db = query_brownfields(sess, filters=BrownfieldsFilters(id=ids))
+    if len(bfs_db) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found"
+        )
+    bfs = [get_brownfield_schema__from_db_object(b) for b in bfs_db]
+    bf = BrownfieldExport(**bfs[0].dict(), WKT=bfs[0].polygon)
+    headers = list(bf.dict().keys())
+    content = get_csv_string(
+        headers, [BrownfieldExport(**b.dict(), WKT=b.polygon).dict() for b in bfs]
+    )
+    return Response(
+        content=content,
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="brownfields.csv"'},
     )

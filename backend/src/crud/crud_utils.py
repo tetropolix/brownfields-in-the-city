@@ -76,6 +76,9 @@ def get_static_image_paths_bf(image_directory_uuid: str) -> list[str]:
 
 
 def assign_filters_bf_query(query: Query, filters: BrownfieldsFilters):
+    if filters.id is not None:
+        ids = filters.id if type(filters.id) is list else [filters.id]
+        query = query.filter(Brownfield.id.in_(ids))
     if filters.street is not None:
         query = query.filter(Brownfield.street.ilike("%" + filters.street + "%"))
     if filters.area_ha_max is not None:

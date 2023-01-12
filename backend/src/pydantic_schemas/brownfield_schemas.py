@@ -95,27 +95,28 @@ class BrownfieldDialUpdate(BaseModel):
 
 
 class BrownfieldsFilters(BaseModel):
-    street: str | None
-    area_ha_max: int | None
-    area_ha_min: int | None
-    mapping_year_max: int | None
-    mapping_year_min: int | None
-    altitude_max: int | None
-    altitude_min: int | None
-    colors: list[int] | None
-    ownership_types: list[int] | None
-    original_functional_utilizations: list[int] | None
-    utilizations: list[int] | None
-    area_sizes: list[int] | None
-    locations: list[int] | None
-    degradation_levels: list[int] | None
-    residentional_area_categories: list[int] | None
-    settlements: list[int] | None
-    infrastructure_availabilities: list[int] | None
-    natural_and_architectural_values: list[int] | None
-    revitalizations: list[int] | None
-    economic_potentials: list[int] | None
-    environmental_burden_inclusions: list[int] | None
+    id: int | list[int] | None = None
+    street: str | None = None
+    area_ha_max: int | None = None
+    area_ha_min: int | None = None
+    mapping_year_max: int | None = None
+    mapping_year_min: int | None = None
+    altitude_max: int | None = None
+    altitude_min: int | None = None
+    colors: list[int] | None = None
+    ownership_types: list[int] | None = None
+    original_functional_utilizations: list[int] | None = None
+    utilizations: list[int] | None = None
+    area_sizes: list[int] | None = None
+    locations: list[int] | None = None
+    degradation_levels: list[int] | None = None
+    residentional_area_categories: list[int] | None = None
+    settlements: list[int] | None = None
+    infrastructure_availabilities: list[int] | None = None
+    natural_and_architectural_values: list[int] | None = None
+    revitalizations: list[int] | None = None
+    economic_potentials: list[int] | None = None
+    environmental_burden_inclusions: list[int] | None = None
 
 
 class AvailableBrownfieldsFilters(BrownfieldsDials):
@@ -177,7 +178,7 @@ class Brownfield(BrownfieldCore):
     revitalization: str
     economic_potential: str | None  # TO DO
     environmental_burden_inclusion: str | None  # TO DO
-    image_urls: list[str] 
+    image_urls: list[str]  #type: ignore
     polygon: list[tuple[float,float]] | None
 
 class BrownfieldExport(BaseModel):
