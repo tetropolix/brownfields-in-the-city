@@ -15,8 +15,8 @@ longitude_min = 21.198261
 longitude_max = 21.306751
 latitude_min = 48.6819772
 latitude_max = 48.7472172
-min_val = 0.02
-max_val = 0.1
+min_val = 0.03
+max_val = 0.11
 
 
 def generate_polygon_middle(
@@ -36,17 +36,17 @@ def generate_polygon_from_middle(
         random_long = round(middle[0] + random.uniform(min_val, max_val), 6)
         random_lat = round(middle[1] + random.uniform(min_val, max_val), 6)
         polygon.append((random_long, random_lat))
-    polygon.append(polygon[0]) # polygon must be closed with starting point
+    polygon.append(polygon[0])  # polygon must be closed with starting point
     return polygon
 
 
 def load_mockups() -> list:
     with open("./MOCK_DATA.json") as f:
         data = json.load(f)
-    middle = generate_polygon_middle(
-        longitude_min, longitude_max, latitude_min, latitude_max
-    )
     for row in data:
+        middle = generate_polygon_middle(
+            longitude_min, longitude_max, latitude_min, latitude_max
+        )
         row["polygon"] = generate_polygon_from_middle(middle, min_val, max_val)
     return data
 
@@ -67,11 +67,11 @@ def insert_brownfield(api_url, data: str, files: list):
 
 if __name__ == "__main__":
     max_insert = None
-    if(len(sys.argv) > 1):
+    if len(sys.argv) > 1:
         max_insert = int(sys.argv[1])
     files = read_files()
-    for i,row in enumerate(load_mockups()):
-        if(max_insert is not None and max_insert == i):
+    for i, row in enumerate(load_mockups()):
+        if max_insert is not None and max_insert == i:
             break
         response = insert_brownfield(
             api_url,
@@ -82,4 +82,3 @@ if __name__ == "__main__":
             exit(1)
         print("OK - " + str(response.json()))
         time.sleep(time_between_requests)
-        
