@@ -10,6 +10,8 @@ from jose import jwt
 from passlib.context import CryptContext
 from globals import EnvVars, ALGORITHM
 from pydantic_schemas.auth_schemas import LoginUser
+from pydantic_schemas.brownfield_schemas import Brownfield, BrownfieldExportKML
+import simplekml
 
 # Brownfields
 
@@ -61,6 +63,35 @@ def get_csv_string(headers: list[str], rows: list[dict]) -> str:
     content = csv_file.read()
     csv_file.close()
     return content
+
+def get_kml_string(brownfields: list[Brownfield]) -> str:
+    bfs_kml = [BrownfieldExportKML(**b.dict()) for b in brownfields]
+    kml = simplekml.Kml()
+    styles: dict[str, simplekml.Style] = {}
+    for bf_kml in bfs_kml:
+        if bf_kml.color.hex_value not in styles.keys():
+            new_style = simplekml.Style()
+            new_style.polystyle.color = from_hex_to_kml_color(bf_kml.color.hex_value)
+            styles[bf_kml.color.hex_value] = new_style
+
+    for bf_kml in bfs_kml:
+        poly = kml.newpolygon(name=bf_kml.street, outerboundaryis=bf_kml.polygon)
+        poly.style = styles[bf_kml.color.hex_value]
+        for key, value in bf_kml.dict().items():
+            if key in [
+                "polygon",
+                "color",
+            ]:  #  exclude as it is not supposed to be in description
+                continue
+            poly.extendeddata.newdata(name=key, value=value)
+    return kml.kml()
+
+
+def from_hex_to_kml_color(hex_color: str):
+    step = 2
+    hex_color = hex_color.replace("#", "")
+    rgb_parts = [hex_color[i : i + step] for i in range(0, len(hex_color), step)]
+    return "0F" + ("".join(rgb_parts[::-1]))
 
 
 # auth

@@ -151,7 +151,7 @@ class NewBrownfield(BaseModel):
     revitalization_id: int
     economic_potential_id: int | None  # TO DO
     environmental_burden_inclusion_id: int | None  # TO DO
-    polygon: list[tuple[float,float]] | None
+    polygon: list[tuple[float, float]] | None
 
 
 class BrownfieldCore(BaseModel):
@@ -178,10 +178,11 @@ class Brownfield(BrownfieldCore):
     revitalization: str
     economic_potential: str | None  # TO DO
     environmental_burden_inclusion: str | None  # TO DO
-    image_urls: list[str]  #type: ignore
-    polygon: list[tuple[float,float]] | None
+    image_urls: list[str]  # type: ignore
+    polygon: list[tuple[float, float]] | None
 
-class BrownfieldExport(BaseModel):
+
+class BrownfieldExportCore(BaseModel):
     street: str
     area_ha: float
     mapping_year: int
@@ -199,12 +200,19 @@ class BrownfieldExport(BaseModel):
     revitalization: str
     economic_potential: str | None  # TO DO
     environmental_burden_inclusion: str | None  # TO DO
-    WKT: list[tuple[float,float]] | None
 
-    #"validates" / recreates list of tuple to the string which is expected in google MyMaps from csv file
-    @validator('WKT')
+
+class BrownfieldExportCSV(BrownfieldExportCore):
+    WKT: list[tuple[float, float]] | None
+
+    # "validates" / recreates list of tuple to the string which is expected in google MyMaps from csv file
+    @validator("WKT")
     def static_mage(cls, wkt):
-        if(wkt ==None):
+        if wkt == None:
             return None
         else:
             return shapely.Polygon(wkt).wkt
+
+class BrownfieldExportKML(BrownfieldExportCore):
+    color: BrownfieldColorDial
+    polygon: list[tuple[float, float]] | None
