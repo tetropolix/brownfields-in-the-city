@@ -10,7 +10,7 @@ exit_abnormal() {                         # Function: Exit with error.
 
 host="127.0.0.1"
 port="8000"
-reload=0
+reload=false
 while getopts h:p:e:r: flag
 do
     case "${flag}" in
@@ -26,9 +26,9 @@ done
 
 
 export BROWNFIELDS_ENV_FILE=$env_file
-if [$reload == 0]
+if $reload;
 then
-  cd src && uvicorn main:app --host $host --port $port
-else
   cd src && uvicorn main:app --host $host --port $port --reload
+else
+  cd src && uvicorn main:app --host $host --port $port 
 fi
