@@ -23,6 +23,7 @@ env_vars = dict(
     SECRET_KEY=os.getenv("SECRET_KEY"),
     BROWFIELDS_STATIC_PATH_IMAGES=os.getenv("BROWFIELDS_STATIC_PATH_IMAGES"),
     BROWNFIELDS_IMAGES_DIR=os.getenv("BROWNFIELDS_IMAGES_DIR"),
+    ENABLE_PROTECTED=os.getenv("ENABLE_PROTECTED"),
 )
 
 # Check if env variables were incialized
@@ -34,6 +35,7 @@ for key, val in env_vars.items():
 class EnvVars:
     SECRET_KEY: str = env_vars.get("SECRET_KEY")  # type: ignore
     SQLALCHEMY_DATABASE_URL: str = env_vars.get("SQLALCHEMY_DATABASE_URL")  # type: ignore
+    ENABLE_PROTECTED: bool = env_vars.get("ENABLE_PROTECTED").lower() in ('true', '1', 't')  # type: ignore
     #DIRECTORY USED AS MOUNTING POINT FOR STATIC FILES -> {STATIC_DIR}
     BROWNFIELDS_STATIC_DIR: str = env_vars.get("BROWNFIELDS_STATIC_DIR")  # type: ignore 
     #DIRECTORY INSIDE STATIC_DIR WHICH SHOULD BE USED FOR STORING IMAGES -> {STATIC_DIR/IMAGES_DIR}
@@ -41,6 +43,9 @@ class EnvVars:
     #PART WHICH WILL BE ATTACHED AFTER /static URL PATH FOR OBTAINING, SPECIFIC DIRECTORY FOR STORING IMAGES -> {IMAGES_DIR}
     BROWFIELDS_STATIC_PATH_IMAGES: str = env_vars.get("BROWFIELDS_STATIC_PATH_IMAGES")  # type: ignore 
 
+## WARNING IF PROTECTED ROUTES IS NOT ENABLED
+if(EnvVars.ENABLE_PROTECTED is False):
+    print("\nWarning - PROTECTED ROUTES ARE NOT ENABLED\n")
 
 # Check if env paths are exisiting directories
 for p in [

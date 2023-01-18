@@ -10,7 +10,7 @@ from pydantic_schemas.auth_schemas import TokenData
 from pydantic import ValidationError
 from routers.routers_utils import decode_jwt
 from jose import JWTError
-from globals import PERMISSIONS
+from globals import PERMISSIONS,EnvVars
 
 ## COMMON
 
@@ -81,9 +81,11 @@ class Protected:
     def __call__(
         self, active_user: UserWithPermissions = Depends(get_current_active_user)
     ) -> User:
-        for perm in self.permissions:
-            if perm.value not in active_user.permissions:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
-                )
+        print(EnvVars.ENABLE_PROTECTED)
+        if(EnvVars.ENABLE_PROTECTED is True):    # Protected route is forced by env variable setting
+            for perm in self.permissions:
+                if perm.value not in active_user.permissions:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
+                    )
         return User(**active_user.dict())

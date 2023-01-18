@@ -36,7 +36,7 @@ from crud.brownfields_cruds import (
     get_available_bf_filters,
     update_existing_dial_value,
 )
-from dependencies import get_session, validate_raw_json_new_brownfield
+from dependencies import Protected, get_session, validate_raw_json_new_brownfield
 from .routers_utils import (
     get_csv_string,
     get_kml_string,
@@ -48,14 +48,17 @@ from .routers_utils import (
     create_bf_images_dir,
 )
 from uuid import uuid4
-from globals import EnvVars
+from globals import PERMISSIONS, EnvVars
 from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter(prefix="/brownfields", tags=["brownfields"])
 
 
 @router.get("/form-fields", response_model=BrownfieldsDials)
-def form_data(sess: Session = Depends(get_session)):
+def form_data(
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ])),
+):
     """
     Returns fields for dropdown menus - used to load values for brownfields creation form
     """
@@ -67,6 +70,9 @@ def insert_brownfield(
     new_brownfield: NewBrownfield = Depends(validate_raw_json_new_brownfield),
     files: list[UploadFile] | None = None,
     sess: Session = Depends(get_session),
+    current_user: Protected = Depends(
+        Protected([PERMISSIONS.BF_READ, PERMISSIONS.BF_CREATE])
+    ),
 ):
     """
     New brownfield record insertion.
@@ -99,10 +105,10 @@ def insert_brownfield(
 
 @router.get("/brownfield/{bf_id}", response_model=Brownfield)
 def get_brownfield(bf_id: int, sess: Session = Depends(get_session)):
-    '''
+    """
     Queries brownfield specified by id.
     404 return if brownfield does not exist.
-    '''
+    """
     bf = query_brownfield(bf_id, sess)
     if bf is None:
         raise HTTPException(
@@ -119,7 +125,7 @@ def get_brownfields(
     params: LimitOffsetParams = Depends(),
     sess: Session = Depends(get_session),
 ):
-    '''Queries brownfields (filter funcionality is not provided at this route)'''
+    """Queries brownfields (filter funcionality is not provided at this route)"""
     res = query_brownfields(sess, params.offset, params.limit, filters=None)
     if len(res) == 0 and params.offset == 0:  # no brownfield in DB
         return paginate([], 0, params)
@@ -141,9 +147,9 @@ def get_brownfields_with_filters(
     params: LimitOffsetParams = Depends(),
     sess: Session = Depends(get_session),
 ):
-    '''
+    """
     Queries brownfields which are selected based on conditions specified in filters object.
-    '''
+    """
     res = query_brownfields(sess, params.offset, params.limit, filters)
     if len(res) == 0 and params.offset == 0:  # no brownfield in DB
         return paginate([], 0, params)
@@ -162,7 +168,9 @@ def get_filters(sess: Session = Depends(get_session)):
 
 
 @router.get("/dials-by-key", response_model=BrownfieldsDialsByKey)
-def get_dials_by_key():
+def get_dials_by_key(
+    current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ])),
+):
     return get_bf_dials_by_key()
 
 
@@ -170,10 +178,13 @@ def get_dials_by_key():
 def update_dial(
     to_update: BrownfieldDialUpdate,
     sess: Session = Depends(get_session),
+    current_user: Protected = Depends(
+        Protected([PERMISSIONS.BF_READ, PERMISSIONS.BF_UPDATE])
+    ),
 ):
-    '''
+    """
     Updates value of existing dial
-    '''
+    """
     dial = get_dial_by_key(to_update)
     if dial is None:
         raise HTTPException(
@@ -193,7 +204,11 @@ def update_dial(
 
 
 @router.get("/export-csv/{bf_id}", response_class=Response)
-def export_brownfield(bf_id: int, sess: Session = Depends(get_session)):
+def export_brownfield(
+    bf_id: int,
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ])),
+):
     """
     Exports brownfield specified by id in CSV format
     """
@@ -215,7 +230,11 @@ def export_brownfield(bf_id: int, sess: Session = Depends(get_session)):
 
 
 @router.get("/export-csv", response_class=Response)
-def export_brownfields(ids: list[int] = Query(), sess: Session = Depends(get_session)):
+def export_brownfields(
+    ids: list[int] = Query(),
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ])),
+):
     """
     Exports multiple brownfields specified by list of ids in query param in CSV format
     If no record was found for some of the ids then record for specified id is not included in final csv
@@ -250,7 +269,11 @@ def export_brownfields(ids: list[int] = Query(), sess: Session = Depends(get_ses
 
 
 @router.get("/export-kml/{bf_id}", response_class=Response)
-def export_brownfield_kml(bf_id: int, sess: Session = Depends(get_session)):
+def export_brownfield_kml(
+    bf_id: int,
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ])),
+):
     """
     Exports brownfield specified by id in KML format
     """
@@ -271,7 +294,9 @@ def export_brownfield_kml(bf_id: int, sess: Session = Depends(get_session)):
 
 @router.get("/export-kml", response_class=Response)
 def export_brownfields_kml(
-    ids: list[int] = Query(), sess: Session = Depends(get_session)
+    ids: list[int] = Query(),
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(Protected([PERMISSIONS.BF_READ])),
 ):
     """
     Exports multiple brownfields specified by list of ids in query param in KML format
