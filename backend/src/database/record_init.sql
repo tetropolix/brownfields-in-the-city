@@ -1,5 +1,5 @@
 --POSTGIS INIT
-CREATE EXTENSION postgis;
+CREATE EXTENSION IF NOT EXISTS postgis;
 DROP TABLE IF EXISTS spatial_ref_sys; --drops unused tabe created by postgis which gives exception when using alembic
 --SCHEMAS
 CREATE SCHEMA IF NOT EXISTS public;

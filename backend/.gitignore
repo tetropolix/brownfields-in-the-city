@@ -1,5 +1,6 @@
 #CUSTOM
 
+*.env*
 .env*
 test_local/
 docker-compose.*

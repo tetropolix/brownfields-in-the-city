@@ -1,4 +1,3 @@
-import base64
 import json
 import os
 import random
@@ -6,10 +5,10 @@ import sys
 import time
 import requests  # type: ignore
 from urllib3 import encode_multipart_formdata
-from urllib3.fields import RequestField
 
-
-api_url = "http://localhost:8000/brownfields/insert"
+auth_token = None
+api_url = "https://brownfields.podmepodme.eu/brownfields/insert"
+# api_url = "http://localhost:8000/brownfields/insert"
 time_between_requests = 0.1  # in sec
 longitude_min = 21.198261
 longitude_max = 21.306751
@@ -62,7 +61,17 @@ def read_files() -> list:
 def insert_brownfield(api_url, data: str, files: list):
     fields = [("data", data)] + files
     body, header = encode_multipart_formdata(fields)
-    return requests.post(api_url, headers={"Content-Type": header}, data=body)
+    if auth_token is not None:
+        return requests.post(
+            api_url,
+            headers={"Content-Type": header, "Authorization": "Bearer " + auth_token},
+            data=body,
+        )
+    return requests.post(
+        api_url,
+        headers={"Content-Type": header},
+        data=body,
+    )
 
 
 if __name__ == "__main__":
@@ -79,6 +88,8 @@ if __name__ == "__main__":
             random.sample(files, random.randint(0, len(files))),
         )
         if response.status_code > 299:
+            print(response.status_code)
+            print(response.content)
             exit(1)
         print("OK - " + str(response.json()))
         time.sleep(time_between_requests)
