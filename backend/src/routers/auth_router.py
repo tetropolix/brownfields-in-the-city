@@ -4,16 +4,18 @@ from fastapi.security import OAuth2PasswordRequestForm
 from custom_exceptions import UserPermissionException
 from dependencies import get_current_active_user
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from dependencies import get_session, Protected
-from pydantic_schemas.auth_schemas import NewUser, User, Token
+from pydantic_schemas.auth_schemas import NewUser, UpdatedUser, User, Token
 from crud.auth_cruds import (
     assign_user_new_session,
     create_new_user,
+    get_all_users,
     get_user_by_email,
     remove_user_session,
+    update_user,
 )
-from .routers_utils import create_access_token, get_password_hash, authenticate_user
+from .routers_utils import create_access_token, authenticate_user
 from globals import ACCESS_TOKEN_EXPIRE_MINUTES, PERMISSIONS
 from secrets import token_urlsafe
 from email_validator import validate_email, EmailNotValidError
@@ -27,8 +29,11 @@ async def login(
     sess: Session = Depends(get_session),
 ):
     """Route which grants access token to the client(browser) - used as login mechanism"""
+    # validate email input from user
     try:
-     user_in_db = get_user_by_email(form_data.username, sess)
+        user_in_db = get_user_by_email(form_data.username, sess)
+    except EmailNotValidError:
+        raise HTTPException(status_code=400, detail="Invalid email")
     except UserPermissionException:
         raise HTTPException(500)
     if not authenticate_user(form_data.password, user_in_db) or user_in_db is None:
@@ -70,11 +75,10 @@ async def logout(
 @router.post("/register")
 def register_user(new_user: NewUser, sess: Session = Depends(get_session)):
     """New user registration"""
-    new_user.password = get_password_hash(new_user.password)
     try:
         validate_email(new_user.email)
     except EmailNotValidError:
-        raise HTTPException(status_code=400,detail="Not valid email")
+        raise HTTPException(status_code=400, detail="Invalid email")
     try:
         id = create_new_user(new_user, sess)
     except IntegrityError as e:
@@ -86,6 +90,38 @@ def register_user(new_user: NewUser, sess: Session = Depends(get_session)):
             detail="Unable to create new user",
         )
     return {}
+
+
+@router.get("/users", response_model=list[User])
+async def list_users(
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(Protected([PERMISSIONS.USER_READ])),
+):
+    """Lists all users in the system"""
+    return get_all_users(sess)
+
+
+@router.post("/user-update", status_code=status.HTTP_202_ACCEPTED)
+async def user_update(
+    updated_user: UpdatedUser,
+    sess: Session = Depends(get_session),
+    current_user: Protected = Depends(
+        Protected([PERMISSIONS.USER_READ, PERMISSIONS.USER_UPDATE])
+    ),
+):
+    """Update user data (including password)"""
+    try:
+        update_user(updated_user, sess)
+    except EmailNotValidError:
+        raise HTTPException(status_code=400, detail="Invalid email")
+    except NoResultFound:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/users/me")
