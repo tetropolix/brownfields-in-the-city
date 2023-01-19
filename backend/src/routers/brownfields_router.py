@@ -125,7 +125,7 @@ def get_brownfields(
     params: LimitOffsetParams = Depends(),
     sess: Session = Depends(get_session),
 ):
-    """Queries brownfields (filter funcionality is not provided at this route)"""
+    """Queries brownfields (filter funcionality is not provided on this route)"""
     res = query_brownfields(sess, params.offset, params.limit, filters=None)
     if len(res) == 0 and params.offset == 0:  # no brownfield in DB
         return paginate([], 0, params)

@@ -1,5 +1,5 @@
 #CUSTOM
-
+node_modules
 *.env*
 .env*
 test_local/

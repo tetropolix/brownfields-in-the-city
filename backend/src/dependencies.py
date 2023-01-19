@@ -81,7 +81,6 @@ class Protected:
     def __call__(
         self, active_user: UserWithPermissions = Depends(get_current_active_user)
     ) -> User:
-        print(EnvVars.ENABLE_PROTECTED)
         if(EnvVars.ENABLE_PROTECTED is True):    # Protected route is forced by env variable setting
             for perm in self.permissions:
                 if perm.value not in active_user.permissions:
