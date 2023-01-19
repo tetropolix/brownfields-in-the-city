@@ -139,7 +139,7 @@ T = TypeVar("T")
 
 
 class LimitOffsetParams(BaseModel, AbstractParams):
-    limit: int = Query(20, ge=1, le=40, description="Page size limit")
+    limit: int = Query(20, ge=1, le=1000, description="Page size limit")
     offset: int = Query(0, ge=0, description="Page offset")
 
     def to_raw_params(self) -> RawParams:
