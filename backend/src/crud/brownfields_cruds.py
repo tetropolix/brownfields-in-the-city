@@ -134,6 +134,7 @@ def get_brownfield_schema__from_db_object(bf : Brownfield):
         color=BrownfieldColorDial(
             id=bf.color.id, name=bf.color.name, hex_value=bf.color.hex_value
         ),
+        description=bf.description,  # type: ignore
         street=bf.street,  # type: ignore
         area_ha=bf.area_ha,  # type: ignore
         mapping_year=bf.mapping_year,  # type: ignore
@@ -188,6 +189,7 @@ def get_brownfield_cores(brownfields: list[Brownfield]) -> list[BrownfieldCore]:
         bf_cores.append(
             BrownfieldCore(
                 id=bf.id,  # type: ignore
+                description=bf.description,  # type: ignore
                 street=bf.street,  # type: ignore
                 area_ha=bf.area_ha,  # type: ignore
                 mapping_year=bf.mapping_year,  # type: ignore

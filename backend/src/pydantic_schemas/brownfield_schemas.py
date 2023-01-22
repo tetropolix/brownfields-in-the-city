@@ -135,6 +135,7 @@ class BrownfieldID(BaseModel):
 class NewBrownfield(BaseModel):
     street: str
     area_ha: float
+    description: str
     mapping_year: int
     altitude: float
     color_id: int
@@ -156,6 +157,7 @@ class NewBrownfield(BaseModel):
 
 class BrownfieldCore(BaseModel):
     id: int
+    description: str
     street: str
     area_ha: float
     mapping_year: int
@@ -184,6 +186,7 @@ class Brownfield(BrownfieldCore):
 
 class BrownfieldExportCore(BaseModel):
     street: str
+    description: str
     area_ha: float
     mapping_year: int
     altitude: float

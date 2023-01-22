@@ -7,9 +7,9 @@ import requests  # type: ignore
 from urllib3 import encode_multipart_formdata
 
 auth_token = None
-api_url = "https://brownfields.podmepodme.eu/brownfields/insert"
+#api_url = "https://brownfields.podmepodme.eu/brownfields/insert"
 # api_url = "http://localhost:8000/brownfields/insert"
-time_between_requests = 0.1  # in sec
+time_between_requests = 0.2  # in sec
 longitude_min = 21.198261
 longitude_max = 21.306751
 latitude_min = 48.6819772
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         response = insert_brownfield(
             api_url,
             json.dumps(row),
-            random.sample(files, random.randint(0, len(files))),
+            random.sample(files, random.randint(0, min(len(files),4))),
         )
         if response.status_code > 299:
             print(response.status_code)

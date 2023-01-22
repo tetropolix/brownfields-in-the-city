@@ -234,6 +234,7 @@ CREATE TABLE brownfields.brownfields (
     id integer NOT NULL,
     image_directory_uuid character varying(128) NOT NULL,
     street character varying(256) NOT NULL,
+    description character varying(512) NOT NULL,
     area_ha numeric(12,4) NOT NULL,
     mapping_year integer NOT NULL,
     altitude real NOT NULL,
@@ -1338,7 +1339,7 @@ ALTER TABLE ONLY auth.user_roles
 --
 
 ALTER TABLE ONLY auth.user_roles
-    ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id);
+    ADD CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) on delete cascade;
 
 
 --
